@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -12,6 +13,7 @@ import {
   BarChart,
   Bar,
 } from "recharts";
+import PageLoading from '@/components/PageLoading';
 
 const metricas = [
   {
@@ -64,11 +66,26 @@ const racaoPorTanque = [
 ];
 
 export default function Dashboard() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <PageLoading />;
+  }
+
   return (
     <div className="p-8 min-h-screen bg-[#D9D9D9]">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-5xl font-extrabold text-[#042326] mb-2">Dashboard</h1>
         <p className="text-lg text-[#042326] mb-8">Visão geral da piscicultura e métricas importantes</p>
+        
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
           {metricas.map((m, i) => (
             <div key={i} className="bg-white rounded-2xl p-7 border border-gray-200 flex flex-col items-center shadow-md hover:shadow-lg transition-shadow duration-300">
@@ -79,6 +96,7 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           <div className="bg-white rounded-2xl p-7 border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300">
             <h2 className="text-xl font-bold text-[#042326] mb-4">Evolução do Peso Médio (g)</h2>
