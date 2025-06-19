@@ -1,8 +1,13 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #ffffff;    /* Cor de fundo para cards e elementos brancos */
+  --foreground: #003c3c;    /* Cor do texto principal (em fundos claros) */
+  --primary: #003c3c;        /* Cor de fundo da sidebar/navbar (verde petróleo) */
+  --secondary: #2ec4b6;      /* Cor de destaque para botões (verde-água) */
+  --page-bg: #e5e7eb;        /* Cor de fundo da página (cinza claro) */
+  --accent: #ffffff;        /* Cor de fundo para botões ativos */
+  --grid: #d1d5db;         /* Cor das linhas dos gráficos */
 }
 
 @theme inline {
@@ -14,13 +19,18 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #ffffff;
+    --foreground: #003c3c;
+    --primary: #003c3c;
+    --secondary: #2ec4b6;
+    --page-bg: #e5e7eb;
+    --accent: #ffffff;
+    --grid: #d1d5db;
   }
 }
 
 body {
-  background: var(--background);
+  background: var(--page-bg);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }

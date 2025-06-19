@@ -20,7 +20,7 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body>
-        <div className="min-h-screen bg-[#D9D9D9] bg-opacity-5">
+        <div className="min-h-screen">
           <Navbar toggleSidebar={toggleSidebar} />
           <Sidebar isOpen={isSidebarOpen} />
           <main className={`transition-all duration-200 ease-in-out ${isSidebarOpen ? 'ml-64' : 'ml-0'}`}>

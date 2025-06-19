@@ -75,14 +75,14 @@ export default function Sidebar({ isOpen }: SidebarProps) {
           group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg
           transition-all duration-150 ease-out
           ${isActive 
-            ? 'bg-[#1D7373] text-white shadow-md' 
-            : 'text-[#1D7373] hover:bg-[#1D7373]/10 hover:text-white'
+            ? 'bg-accent text-primary shadow-md' 
+            : 'text-white hover:bg-accent hover:text-primary'
           }
         `}
       >
         <div className={`
           mr-3 transition-colors duration-150
-          ${isActive ? 'text-white' : 'text-[#1D7373] group-hover:text-white'}
+          ${isActive ? 'text-primary' : 'text-white group-hover:text-primary'}
         `}>
           {item.icon}
         </div>
@@ -95,9 +95,9 @@ export default function Sidebar({ isOpen }: SidebarProps) {
     <div className="relative">
       <button
         onClick={() => setIsProfileOpen(!isProfileOpen)}
-        className="flex items-center w-full p-3 rounded-lg hover:bg-[#1D7373]/10 transition-colors duration-150"
+        className="flex items-center w-full p-3 rounded-lg hover:bg-black/10 transition-colors duration-150"
       >
-        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#1D7373] text-white font-medium text-sm">
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-secondary text-white font-medium text-sm">
           U
         </div>
         <span className="ml-3 text-sm font-medium text-white">Usuário</span>
@@ -110,7 +110,7 @@ export default function Sidebar({ isOpen }: SidebarProps) {
         <div className="absolute bottom-full left-0 mb-2 w-full rounded-lg bg-white shadow-lg border border-gray-200 overflow-hidden">
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-4 py-3 text-sm text-[#042326] hover:bg-[#1D7373] hover:text-white transition-colors duration-150"
+            className="flex items-center w-full px-4 py-3 text-sm text-primary hover:bg-secondary hover:text-white transition-colors duration-150"
           >
             <LogOut className="w-4 h-4 mr-3" />
             Sair
@@ -122,29 +122,29 @@ export default function Sidebar({ isOpen }: SidebarProps) {
 
   return (
     <aside className={`
-      fixed inset-y-0 left-0 z-50 w-64 bg-[#042326] shadow-xl
+      fixed inset-y-0 left-0 z-50 w-64 bg-primary shadow-xl
       transform transition-transform duration-150 ease-out
       ${isOpen ? 'translate-x-0' : '-translate-x-full'}
     `}>
       <div className="flex flex-col h-full">
-        <header className="flex-shrink-0 px-6 py-6 border-b border-[#1D7373]/20">
+        <header className="flex-shrink-0 px-6 py-6 border-b border-white/10">
           <h1 className="text-2xl font-bold text-white">FishNet</h1>
         </header>
 
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
           {menuItems.map((item) => (
             <MenuButton key={item.path} item={item} />
           ))}
         </nav>
 
-        <footer className="flex-shrink-0 border-t border-[#1D7373]/20">
+        <footer className="flex-shrink-0 border-t border-white/10">
           <div className="px-3 py-3 space-y-1">
             {footerItems.map((item) => (
               <MenuButton key={item.path} item={item} />
             ))}
           </div>
           
-          <div className="px-3 py-3 border-t border-[#1D7373]/20">
+          <div className="px-3 py-3 border-t border-white/10">
             <UserProfile />
           </div>
         </footer>
