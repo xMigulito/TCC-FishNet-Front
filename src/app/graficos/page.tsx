@@ -11,21 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-
-const tanques = [
-  { id: 1, nome: 'Tanque 1' },
-  { id: 2, nome: 'Tanque 2' },
-  { id: 3, nome: 'Tanque 3' },
-  { id: 4, nome: 'Tanque 4' },
-];
-
-const data = [
-  { mes: 'Jan', biomassa: 1000, qualidadeAgua: 7.5, mortalidade: 2, fca: 1.8, projecao: 1200 },
-  { mes: 'Fev', biomassa: 1200, qualidadeAgua: 7.8, mortalidade: 1.8, fca: 1.7, projecao: 1400 },
-  { mes: 'Mar', biomassa: 1400, qualidadeAgua: 8.0, mortalidade: 1.5, fca: 1.6, projecao: 1600 },
-  { mes: 'Abr', biomassa: 1600, qualidadeAgua: 7.9, mortalidade: 1.2, fca: 1.5, projecao: 1800 },
-  { mes: 'Mai', biomassa: 1800, qualidadeAgua: 8.2, mortalidade: 1.0, fca: 1.4, projecao: 2000 },
-];
+import { filtrarDadosPorTanque, tanques } from '@/data/mock-data';
 
 const chartColors = {
   biomassa: 'var(--primary)',
@@ -39,10 +25,12 @@ const chartColors = {
 
 export default function Graficos() {
   const [tanqueSelecionado, setTanqueSelecionado] = useState(tanques[0].id);
+  const [dadosGraficos, setDadosGraficos] = useState(filtrarDadosPorTanque(tanques[0].id));
 
   const handleTanqueChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setTanqueSelecionado(Number(event.target.value));
-    // Aqui você pode adicionar a lógica para buscar os dados do tanque selecionado
+    const novoTanque = Number(event.target.value);
+    setTanqueSelecionado(novoTanque);
+    setDadosGraficos(filtrarDadosPorTanque(novoTanque));
   };
 
   return (
@@ -80,7 +68,7 @@ export default function Graficos() {
             <h2 className="text-xl font-bold text-primary mb-4">Evolução da Biomassa</h2>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
+                <LineChart data={dadosGraficos}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                   <XAxis dataKey="mes" stroke={chartColors.axis} />
                   <YAxis stroke={chartColors.axis} />
@@ -112,7 +100,7 @@ export default function Graficos() {
             <h2 className="text-xl font-bold text-primary mb-4">Qualidade da Água</h2>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
+                <LineChart data={dadosGraficos}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                   <XAxis dataKey="mes" stroke={chartColors.axis} />
                   <YAxis stroke={chartColors.axis} />
@@ -144,7 +132,7 @@ export default function Graficos() {
             <h2 className="text-xl font-bold text-primary mb-4">Taxa de Mortalidade</h2>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
+                <LineChart data={dadosGraficos}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                   <XAxis dataKey="mes" stroke={chartColors.axis} />
                   <YAxis stroke={chartColors.axis} />
@@ -176,7 +164,7 @@ export default function Graficos() {
             <h2 className="text-xl font-bold text-primary mb-4">Fator de Conversão Alimentar</h2>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
+                <LineChart data={dadosGraficos}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                   <XAxis dataKey="mes" stroke={chartColors.axis} />
                   <YAxis stroke={chartColors.axis} />
@@ -208,7 +196,7 @@ export default function Graficos() {
             <h2 className="text-xl font-bold text-primary mb-4">Projeção de Biomassa</h2>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
+                <LineChart data={dadosGraficos}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                   <XAxis dataKey="mes" stroke={chartColors.axis} />
                   <YAxis stroke={chartColors.axis} />

@@ -14,56 +14,86 @@ import {
   Bar,
 } from "recharts";
 import PageLoading from '@/components/PageLoading';
+import { filtrarDadosPorTanque, tanques } from '@/data/mock-data';
 
-const metricas = [
-  {
-    titulo: "Peso Médio Atual",
-    valor: "180g",
-    variacao: "+12,5%",
-    cor: "text-green-600",
-    descricao: "desde o último mês",
-  },
-  {
-    titulo: "Consumo de Ração",
-    valor: "45kg",
-    variacao: "+3,5%",
-    cor: "text-green-600",
-    descricao: "desde o último mês",
-  },
-  {
-    titulo: "População Total",
-    valor: "2.400",
-    variacao: "-1,5%",
-    cor: "text-red-600",
-    descricao: "desde o último mês",
-  },
-  {
-    titulo: "Biomassa Total",
-    valor: "1284.5 kg",
-    variacao: "+3,5%",
-    cor: "text-green-600",
-    descricao: "desde o último mês",
-  },
-];
+// Função para calcular métricas do dashboard
+function calcularMetricas() {
+  // Pega os dados do último mês para cada tanque
+  const dadosUltimoMes = tanques.map(tanque => {
+    const dadosTanque = filtrarDadosPorTanque(tanque.id);
+    return dadosTanque[dadosTanque.length - 1];
+  });
 
-const evolucaoPeso = [
-  { data: "10 de dez.", atual: 60, ideal: 70 },
-  { data: "9 de jan.", atual: 62, ideal: 75 },
-  { data: "8 de fev.", atual: 65, ideal: 80 },
-  { data: "10 de mar.", atual: 70, ideal: 90 },
-  { data: "9 de abr.", atual: 80, ideal: 100 },
-  { data: "8 de mai.", atual: 90, ideal: 110 },
-  { data: "8 de jun.", atual: 100, ideal: 120 },
-];
+  // Pega os dados do penúltimo mês para cada tanque
+  const dadosPenultimoMes = tanques.map(tanque => {
+    const dadosTanque = filtrarDadosPorTanque(tanque.id);
+    return dadosTanque[dadosTanque.length - 2];
+  });
 
-const racaoPorTanque = [
-  { tanque: "Tanque 1", usada: 120, projetada: 140 },
-  { tanque: "Tanque 2", usada: 150, projetada: 160 },
-  { tanque: "Tanque 3", usada: 90, projetada: 110 },
-  { tanque: "Tanque 4", usada: 200, projetada: 180 },
-  { tanque: "Tanque 5", usada: 170, projetada: 200 },
-  { tanque: "Tanque 6", usada: 110, projetada: 130 },
-];
+  // Calcula totais do último mês
+  const biomassaTotal = dadosUltimoMes.reduce((acc, curr) => acc + curr.biomassa, 0);
+  const biomassaTotalAnterior = dadosPenultimoMes.reduce((acc, curr) => acc + curr.biomassa, 0);
+  const variacaoBiomassa = ((biomassaTotal - biomassaTotalAnterior) / biomassaTotalAnterior) * 100;
+
+  // Calcula médias do último mês
+  const fcaMedio = dadosUltimoMes.reduce((acc, curr) => acc + curr.fca, 0) / dadosUltimoMes.length;
+  const fcaMedioAnterior = dadosPenultimoMes.reduce((acc, curr) => acc + curr.fca, 0) / dadosPenultimoMes.length;
+  const variacaoFca = ((fcaMedio - fcaMedioAnterior) / fcaMedioAnterior) * 100;
+
+  return [
+    {
+      titulo: "Biomassa Total",
+      valor: `${biomassaTotal.toFixed(1)} kg`,
+      variacao: `${variacaoBiomassa >= 0 ? '+' : ''}${variacaoBiomassa.toFixed(1)}%`,
+      cor: variacaoBiomassa >= 0 ? "text-green-600" : "text-red-600",
+      descricao: "desde o último mês",
+    },
+    {
+      titulo: "FCA Médio",
+      valor: fcaMedio.toFixed(2),
+      variacao: `${variacaoFca >= 0 ? '+' : ''}${variacaoFca.toFixed(1)}%`,
+      cor: variacaoFca <= 0 ? "text-green-600" : "text-red-600",
+      descricao: "desde o último mês",
+    },
+    {
+      titulo: "Qualidade da Água",
+      valor: "7.5 pH",
+      variacao: "+0.2%",
+      cor: "text-green-600",
+      descricao: "desde o último mês",
+    },
+    {
+      titulo: "Taxa de Mortalidade",
+      valor: `${dadosUltimoMes[0].mortalidade.toFixed(1)}%`,
+      variacao: "-0.5%",
+      cor: "text-green-600",
+      descricao: "desde o último mês",
+    },
+  ];
+}
+
+// Função para processar dados de evolução
+function processarEvolucaoPeso(tanqueId: number) {
+  const dados = filtrarDadosPorTanque(tanqueId);
+  return dados.map(d => ({
+    data: d.mes,
+    atual: d.biomassa,
+    ideal: d.projecao,
+  }));
+}
+
+// Função para processar dados de ração por tanque
+function processarRacaoPorTanque() {
+  return tanques.map(tanque => {
+    const dadosTanque = filtrarDadosPorTanque(tanque.id);
+    const ultimoDado = dadosTanque[dadosTanque.length - 1];
+    return {
+      tanque: tanque.nome,
+      usada: Number((ultimoDado.biomassa * ultimoDado.fca).toFixed(2)),
+      projetada: Number((ultimoDado.projecao * ultimoDado.fca).toFixed(2)),
+    };
+  });
+}
 
 const chartColors = {
   primary: 'var(--primary)',
@@ -73,6 +103,9 @@ const chartColors = {
 
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
+  const metricas = calcularMetricas();
+  const evolucaoPeso = processarEvolucaoPeso(1);
+  const racaoPorTanque = processarRacaoPorTanque();
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -105,7 +138,7 @@ export default function Dashboard() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           <div className="bg-white rounded-2xl p-7 border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300">
-            <h2 className="text-xl font-bold text-primary mb-4">Evolução do Peso Médio (g)</h2>
+            <h2 className="text-xl font-bold text-primary mb-4">Evolução da Biomassa (kg)</h2>
             <div className="h-[220px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={evolucaoPeso}>
@@ -114,14 +147,14 @@ export default function Dashboard() {
                   <YAxis stroke={chartColors.primary} />
                   <Tooltip contentStyle={{ backgroundColor: 'white', borderRadius: '0.5rem', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                   <Legend />
-                  <Line type="monotone" dataKey="atual" stroke={chartColors.secondary} strokeWidth={2} dot={{ fill: chartColors.secondary, strokeWidth: 2 }} name="Peso Atual" />
-                  <Line type="monotone" dataKey="ideal" stroke={chartColors.primary} strokeWidth={2} dot={{ fill: chartColors.primary, strokeWidth: 2 }} name="Peso Ideal" />
+                  <Line type="monotone" dataKey="atual" stroke={chartColors.secondary} strokeWidth={2} dot={{ fill: chartColors.secondary, strokeWidth: 2 }} name="Biomassa Atual" />
+                  <Line type="monotone" dataKey="ideal" stroke={chartColors.primary} strokeWidth={2} dot={{ fill: chartColors.primary, strokeWidth: 2 }} name="Biomassa Projetada" />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           </div>
           <div className="bg-white rounded-2xl p-7 border border-gray-200 shadow-md hover:shadow-lg transition-shadow duration-300">
-            <h2 className="text-xl font-bold text-primary mb-4">Uso de Ração por Tanque (kg/semana)</h2>
+            <h2 className="text-xl font-bold text-primary mb-4">Uso de Ração por Tanque (kg)</h2>
             <div className="h-[220px]">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={racaoPorTanque}>
