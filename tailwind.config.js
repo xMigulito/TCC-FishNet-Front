@@ -8,13 +8,19 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        primary: '#003c3c',
-        secondary: '#2ec4b6',
-        accent: '#ffffff',
+        primary: 'rgb(var(--primary) / <alpha-value>)',
+        secondary: 'rgb(var(--secondary) / <alpha-value>)',
+        accent: 'rgb(var(--accent) / <alpha-value>)',
+        grid: 'rgb(var(--grid) / <alpha-value>)',
+        background: 'rgb(var(--background) / <alpha-value>)',
+        foreground: 'rgb(var(--foreground) / <alpha-value>)',
         page: {
-          bg: '#e5e7eb'
+          bg: 'rgb(var(--page-bg) / <alpha-value>)'
         },
-        grid: '#d1d5db',
+        sidebar: {
+          bg: 'rgb(var(--sidebar-bg) / <alpha-value>)',
+          text: 'rgb(var(--sidebar-text) / <alpha-value>)'
+        }
       },
     },
   },

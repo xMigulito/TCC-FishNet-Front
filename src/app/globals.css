@@ -1,36 +1,121 @@
 @import "tailwindcss";
 
+/* Variáveis de cor base */
 :root {
-  --background: #ffffff;    /* Cor de fundo para cards e elementos brancos */
-  --foreground: #003c3c;    /* Cor do texto principal (em fundos claros) */
-  --primary: #003c3c;        /* Cor de fundo da sidebar/navbar (verde petróleo) */
-  --secondary: #2ec4b6;      /* Cor de destaque para botões (verde-água) */
-  --page-bg: #e5e7eb;        /* Cor de fundo da página (cinza claro) */
-  --accent: #ffffff;        /* Cor de fundo para botões ativos */
-  --grid: #d1d5db;         /* Cor das linhas dos gráficos */
+  --verde-petroleo: #003c3c;
+  --verde-agua: #2ec4b6;
+  --branco: #ffffff;
+  --cinza-claro: #e5e7eb;
+  --cinza-medio: #d1d5db;
+
+  /* Variáveis para os gráficos */
+  --primary: #003c3c;
+  --secondary: #2ec4b6;
+  --grid: #d1d5db;
+  --accent: #1a9082;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Backgrounds */
+.bg-primary {
+  background-color: var(--verde-petroleo);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #ffffff;
-    --foreground: #003c3c;
-    --primary: #003c3c;
-    --secondary: #2ec4b6;
-    --page-bg: #e5e7eb;
-    --accent: #ffffff;
-    --grid: #d1d5db;
-  }
+.bg-secondary {
+  background-color: var(--verde-agua);
+}
+
+.bg-page {
+  background-color: var(--cinza-claro);
+}
+
+.bg-white {
+  background-color: var(--branco);
+}
+
+/* Textos */
+.text-primary {
+  color: var(--verde-petroleo);
+}
+
+.text-secondary {
+  color: var(--verde-agua);
+}
+
+.text-white {
+  color: var(--branco);
+}
+
+/* Bordas */
+.border-grid {
+  border-color: var(--cinza-medio);
+}
+
+/* Hover States */
+.hover\:bg-primary:hover {
+  background-color: var(--verde-petroleo);
+}
+
+.hover\:bg-secondary:hover {
+  background-color: var(--verde-agua);
+}
+
+.hover\:text-primary:hover {
+  color: var(--verde-petroleo);
+}
+
+.hover\:text-white:hover {
+  color: var(--branco);
+}
+
+/* Sidebar específico */
+.sidebar {
+  background-color: var(--verde-petroleo);
+}
+
+.sidebar-text {
+  color: var(--branco);
+}
+
+.sidebar-item-active {
+  background-color: var(--verde-agua);
+  color: var(--branco);
+}
+
+.sidebar-item-hover:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Navbar específico */
+.navbar {
+  background-color: var(--verde-petroleo);
+}
+
+.navbar-text {
+  color: var(--branco);
+}
+
+/* Cards */
+.card {
+  background-color: var(--branco);
+  border: 1px solid var(--cinza-medio);
+  border-radius: 0.5rem;
+}
+
+/* Gráficos */
+.chart-grid {
+  stroke: var(--cinza-medio);
+}
+
+.chart-line-primary {
+  stroke: var(--verde-petroleo);
+}
+
+.chart-line-secondary {
+  stroke: var(--verde-agua);
 }
 
 body {
-  background: var(--page-bg);
-  color: var(--foreground);
+  background-color: var(--cinza-claro);
+  color: var(--verde-petroleo);
   font-family: Arial, Helvetica, sans-serif;
 }

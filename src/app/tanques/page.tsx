@@ -32,7 +32,10 @@ export default function Tanques() {
                 <div className="w-full h-2 bg-gray-200 rounded-full mb-3">
                   <div
                     className="h-2 rounded-full"
-                    style={{ width: `${(tanque.populacao / tanque.capacidade) * 100}%`, background: 'linear-gradient(90deg, var(--secondary) 70%, var(--accent) 100%)' }}
+                    style={{ 
+                      width: `${(tanque.populacao / tanque.capacidade) * 100}%`, 
+                      background: 'linear-gradient(90deg, var(--secondary) 0%, var(--accent) 100%)' 
+                    }}
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-primary">

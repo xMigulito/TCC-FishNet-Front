@@ -1,20 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
-import { 
-  LayoutDashboard, 
-  Building2, 
-  FileText, 
-  BarChart3, 
-  Settings, 
-  ChevronDown, 
-  LogOut 
-} from 'lucide-react';
-
-interface SidebarProps {
-  isOpen: boolean;
-}
+import { usePathname, useRouter } from 'next/navigation';
+import { useState, useCallback } from 'react';
+import { ChevronDown, LogOut, LayoutDashboard, Settings, FileText, BarChart3, Database } from 'lucide-react';
 
 interface MenuItem {
   name: string;
@@ -22,49 +10,35 @@ interface MenuItem {
   icon: React.ReactNode;
 }
 
-export default function Sidebar({ isOpen }: SidebarProps) {
+interface SidebarProps {
+  isOpen: boolean;
+  isMinimized: boolean;
+  onToggleMinimize: () => void;
+}
+
+export default function Sidebar({ isOpen, isMinimized, onToggleMinimize }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const menuItems: MenuItem[] = [
-    {
-      name: 'Dashboard',
-      path: '/dashboard',
-      icon: <LayoutDashboard className="w-6 h-6" />
-    },
-    {
-      name: 'Tanques',
-      path: '/tanques',
-      icon: <Building2 className="w-6 h-6" />
-    },
-    {
-      name: 'Relatórios',
-      path: '/relatorios',
-      icon: <FileText className="w-6 h-6" />
-    },
-    {
-      name: 'Gráficos',
-      path: '/graficos',
-      icon: <BarChart3 className="w-6 h-6" />
-    }
+    { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="w-6 h-6" /> },
+    { name: 'Tanques', path: '/tanques', icon: <Database className="w-6 h-6" /> },
+    { name: 'Gráficos', path: '/graficos', icon: <BarChart3 className="w-6 h-6" /> },
+    { name: 'Relatórios', path: '/relatorios', icon: <FileText className="w-6 h-6" /> },
   ];
 
   const footerItems: MenuItem[] = [
-    {
-      name: 'Configurações',
-      path: '/configuracoes',
-      icon: <Settings className="w-6 h-6" />
-    }
+    { name: 'Configurações', path: '/configuracoes', icon: <Settings className="w-6 h-6" /> },
   ];
 
-  const handleLogout = () => {
-    router.push('/login');
-  };
-
-  const handleNavigation = (path: string) => {
+  const handleNavigation = useCallback((path: string) => {
     router.push(path);
-  };
+  }, [router]);
+
+  const handleLogout = useCallback(() => {
+    router.push('/login');
+  }, [router]);
 
   const MenuButton = ({ item }: { item: MenuItem }) => {
     const isActive = pathname === item.path;
@@ -72,21 +46,20 @@ export default function Sidebar({ isOpen }: SidebarProps) {
       <button
         onClick={() => handleNavigation(item.path)}
         className={`
-          group flex items-center w-full px-3 py-2.5 text-sm font-medium rounded-lg
-          transition-all duration-150 ease-out
-          ${isActive 
-            ? 'bg-accent text-primary shadow-md' 
-            : 'text-white hover:bg-accent hover:text-primary'
-          }
+          group flex items-center w-full px-4 py-2.5 text-sm font-medium rounded-lg
+          transition-all duration-150 ease-in-out
+          ${isActive ? 'sidebar-item-active' : 'sidebar-text sidebar-item-hover'}
+          ${isMinimized ? 'justify-center' : ''}
         `}
+        title={isMinimized ? item.name : ''}
       >
         <div className={`
-          mr-3 transition-colors duration-150
-          ${isActive ? 'text-primary' : 'text-white group-hover:text-primary'}
+          ${!isMinimized && 'mr-3'} transition-colors duration-150
+          ${isActive ? 'text-white' : 'sidebar-text'}
         `}>
           {item.icon}
         </div>
-        <span className="font-medium">{item.name}</span>
+        {!isMinimized && <span className="font-medium whitespace-nowrap">{item.name}</span>}
       </button>
     );
   };
@@ -95,22 +68,32 @@ export default function Sidebar({ isOpen }: SidebarProps) {
     <div className="relative">
       <button
         onClick={() => setIsProfileOpen(!isProfileOpen)}
-        className="flex items-center w-full p-3 rounded-lg hover:bg-black/10 transition-colors duration-150"
+        className={`
+          flex items-center w-full p-3 rounded-lg sidebar-item-hover
+          ${isMinimized ? 'justify-center' : ''}
+        `}
       >
-        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-secondary text-white font-medium text-sm">
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-secondary text-primary font-bold text-sm">
           U
         </div>
-        <span className="ml-3 text-sm font-medium text-white">Usuário</span>
-        <ChevronDown 
-          className={`ml-auto w-4 h-4 text-white transition-transform duration-150 ${isProfileOpen ? 'rotate-180' : ''}`}
-        />
+        {!isMinimized && (
+          <>
+            <span className="ml-3 text-sm font-medium sidebar-text">Usuário</span>
+            <ChevronDown 
+              className={`ml-auto w-4 h-4 sidebar-text transition-transform duration-150 ${isProfileOpen ? 'rotate-180' : ''}`}
+            />
+          </>
+        )}
       </button>
 
       {isProfileOpen && (
-        <div className="absolute bottom-full left-0 mb-2 w-full rounded-lg bg-white shadow-lg border border-gray-200 overflow-hidden">
+        <div className={`
+          absolute bottom-full mb-2 rounded-lg bg-primary shadow-lg border border-white/10 overflow-hidden
+          ${isMinimized ? 'left-full ml-2' : 'left-0 w-full'}
+        `}>
           <button
             onClick={handleLogout}
-            className="flex items-center w-full px-4 py-3 text-sm text-primary hover:bg-secondary hover:text-white transition-colors duration-150"
+            className="flex items-center w-full px-4 py-3 text-sm sidebar-text hover:bg-secondary hover:text-primary transition-colors duration-150 whitespace-nowrap"
           >
             <LogOut className="w-4 h-4 mr-3" />
             Sair
@@ -122,29 +105,40 @@ export default function Sidebar({ isOpen }: SidebarProps) {
 
   return (
     <aside className={`
-      fixed inset-y-0 left-0 z-50 w-64 bg-primary shadow-xl
-      transform transition-transform duration-150 ease-out
+      fixed top-0 left-0 z-20 h-full sidebar
+      transform transition-all duration-300 ease-in-out
       ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+      ${isMinimized ? 'w-20' : 'w-64'}
+      md:translate-x-0
     `}>
-      <div className="flex flex-col h-full">
-        <header className="flex-shrink-0 px-6 py-6 border-b border-white/10">
-          <h1 className="text-2xl font-bold text-white">FishNet</h1>
+      <div className="flex flex-col h-full p-4">
+        <header className="flex-shrink-0 px-2 py-4 border-b border-white/10">
+          <button
+            onClick={onToggleMinimize}
+            className="w-full flex items-center justify-center"
+          >
+            {!isMinimized ? (
+              <h1 className="text-2xl font-bold text-white">FishNet</h1>
+            ) : (
+              <h1 className="text-2xl font-bold text-white">F</h1>
+            )}
+          </button>
         </header>
 
-        <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
+        <nav className="flex-1 mt-4 space-y-1 overflow-y-auto">
           {menuItems.map((item) => (
             <MenuButton key={item.path} item={item} />
           ))}
         </nav>
 
-        <footer className="flex-shrink-0 border-t border-white/10">
-          <div className="px-3 py-3 space-y-1">
+        <footer className="flex-shrink-0 border-t border-white/10 pt-4">
+          <div className="space-y-1">
             {footerItems.map((item) => (
               <MenuButton key={item.path} item={item} />
             ))}
           </div>
           
-          <div className="px-3 py-3 border-t border-white/10">
+          <div className="mt-4 border-t border-white/10 pt-4">
             <UserProfile />
           </div>
         </footer>
