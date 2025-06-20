@@ -18,12 +18,6 @@ export default function Navbar({ toggleSidebar, isSidebarOpen, isSidebarMinimize
         md:pl-0
       `}>
         <div className="flex items-center pl-4">
-          <button
-            onClick={toggleSidebar}
-            className="p-2 rounded-md navbar-text hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-          >
-            <Menu className="h-6 w-6" />
-          </button>
         </div>
       </div>
     </header>
