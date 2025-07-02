@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -11,7 +11,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { filtrarDadosPorTanque, tanques } from '@/data/mock-data';
+import { fetchDashBoardInfo } from '@/api/api';
 
 const chartColors = {
   biomassa: 'var(--primary)',
@@ -23,15 +23,71 @@ const chartColors = {
   axis: 'var(--primary)',
 };
 
+function formatarData(data: string | Date) {
+  const d = new Date(data);
+  return d.toLocaleDateString('pt-BR', { month: '2-digit', year: 'numeric' });
+}
+
+interface DadosGrafico {
+  mes: string;
+  biomassa: number;
+  qualidadeAgua: number;
+  mortalidade: number;
+  fca: number;
+  projecao: number;
+}
+
+interface Tanque {
+  id: number;
+  nome: string;
+  dados: DadosGrafico[];
+}
+
 export default function Graficos() {
-  const [tanqueSelecionado, setTanqueSelecionado] = useState(tanques[0].id);
-  const [dadosGraficos, setDadosGraficos] = useState(filtrarDadosPorTanque(tanques[0].id));
+  const [tanques, setTanques] = useState<Tanque[]>([]);
+  const [tanqueSelecionado, setTanqueSelecionado] = useState<number | null>(null);
+  const [dadosGraficos, setDadosGraficos] = useState<DadosGrafico[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const data = await fetchDashBoardInfo();
+        setTanques(data);
+        if (data.length > 0) {
+          setTanqueSelecionado(data[0].id);
+          setDadosGraficos(data[0].dados);
+        }
+      } catch {
+        setTanques([]);
+        setTanqueSelecionado(null);
+        setDadosGraficos([]);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
+  }, []);
 
   const handleTanqueChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const novoTanque = Number(event.target.value);
     setTanqueSelecionado(novoTanque);
-    setDadosGraficos(filtrarDadosPorTanque(novoTanque));
+    const tanque = tanques.find(t => t.id === novoTanque);
+    setDadosGraficos(tanque ? tanque.dados : []);
   };
+
+  if (isLoading) {
+    return <div className="p-8">Carregando gráficos...</div>;
+  }
+
+  if (!tanques.length) {
+    return <div className="p-8">Erro ao carregar dados dos gráficos.</div>;
+  }
+
+  const dadosGraficosFormatados = dadosGraficos.map(d => ({
+    ...d,
+    mes: formatarData(d.mes),
+  }));
 
   return (
     <div className="p-8 min-h-screen bg-page">
@@ -45,7 +101,7 @@ export default function Graficos() {
               </label>
               <select
                 id="tanque"
-                value={tanqueSelecionado}
+                value={tanqueSelecionado ?? ''}
                 onChange={handleTanqueChange}
                 className="block w-48 rounded-lg border-secondary py-2 pl-3 pr-10 text-base focus:border-secondary focus:outline-none focus:ring-secondary sm:text-sm bg-white shadow-sm"
               >
@@ -68,7 +124,7 @@ export default function Graficos() {
             <h2 className="text-xl font-bold text-primary mb-4">Evolução da Biomassa</h2>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={dadosGraficos}>
+                <LineChart data={dadosGraficosFormatados}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                   <XAxis dataKey="mes" stroke={chartColors.axis} />
                   <YAxis stroke={chartColors.axis} />
@@ -100,7 +156,7 @@ export default function Graficos() {
             <h2 className="text-xl font-bold text-primary mb-4">Qualidade da Água</h2>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={dadosGraficos}>
+                <LineChart data={dadosGraficosFormatados}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                   <XAxis dataKey="mes" stroke={chartColors.axis} />
                   <YAxis stroke={chartColors.axis} />
@@ -132,7 +188,7 @@ export default function Graficos() {
             <h2 className="text-xl font-bold text-primary mb-4">Taxa de Mortalidade</h2>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={dadosGraficos}>
+                <LineChart data={dadosGraficosFormatados}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                   <XAxis dataKey="mes" stroke={chartColors.axis} />
                   <YAxis stroke={chartColors.axis} />
@@ -164,7 +220,7 @@ export default function Graficos() {
             <h2 className="text-xl font-bold text-primary mb-4">Fator de Conversão Alimentar</h2>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={dadosGraficos}>
+                <LineChart data={dadosGraficosFormatados}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                   <XAxis dataKey="mes" stroke={chartColors.axis} />
                   <YAxis stroke={chartColors.axis} />
@@ -194,9 +250,12 @@ export default function Graficos() {
           {/* Projeção de Biomassa */}
           <div className="bg-white p-7 rounded-2xl shadow-md hover:shadow-lg transition-shadow duration-300 md:col-span-2">
             <h2 className="text-xl font-bold text-primary mb-4">Projeção de Biomassa</h2>
+            <p className="text-sm text-gray-600 mb-4">
+              Comparação entre biomassa real e projeção baseada na planilha de crescimento
+            </p>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={dadosGraficos}>
+                <LineChart data={dadosGraficosFormatados}>
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                   <XAxis dataKey="mes" stroke={chartColors.axis} />
                   <YAxis stroke={chartColors.axis} />
@@ -207,16 +266,30 @@ export default function Graficos() {
                       border: 'none',
                       boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                     }}
+                    formatter={(value, name) => [
+                      `${Number(value).toLocaleString('pt-BR')} kg`, 
+                      name
+                    ]}
                   />
                   <Legend />
                   <Line 
                     type="monotone" 
+                    dataKey="biomassa" 
+                    stroke={chartColors.biomassa}
+                    strokeWidth={3}
+                    dot={{ fill: chartColors.biomassa, strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6 }}
+                    name="Biomassa Real" 
+                  />
+                  <Line 
+                    type="monotone" 
                     dataKey="projecao" 
                     stroke={chartColors.projecao}
-                    strokeWidth={2}
-                    dot={{ fill: chartColors.projecao, strokeWidth: 2 }}
+                    strokeWidth={3}
+                    strokeDasharray="8 4"
+                    dot={{ fill: chartColors.projecao, strokeWidth: 2, r: 4 }}
                     activeDot={{ r: 6 }}
-                    name="Projeção (kg)" 
+                    name="Projeção Futura" 
                   />
                 </LineChart>
               </ResponsiveContainer>

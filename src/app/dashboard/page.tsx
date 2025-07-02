@@ -14,28 +14,23 @@ import {
   Bar,
 } from "recharts";
 import PageLoading from '@/components/PageLoading';
-import { filtrarDadosPorTanque, tanques } from '@/data/mock-data';
+import { fetchDashBoardInfo } from '@/api/api';
 
-// Função para calcular métricas do dashboard
-function calcularMetricas() {
-  // Pega os dados do último mês para cada tanque
-  const dadosUltimoMes = tanques.map(tanque => {
-    const dadosTanque = filtrarDadosPorTanque(tanque.id);
+function calcularMetricas(data: any) {
+  const dadosUltimoMes = data.map(tanque => {
+    const dadosTanque = tanque.dados;
     return dadosTanque[dadosTanque.length - 1];
   });
 
-  // Pega os dados do penúltimo mês para cada tanque
-  const dadosPenultimoMes = tanques.map(tanque => {
-    const dadosTanque = filtrarDadosPorTanque(tanque.id);
+  const dadosPenultimoMes = data.map(tanque => {
+    const dadosTanque = tanque.dados;
     return dadosTanque[dadosTanque.length - 2];
   });
 
-  // Calcula totais do último mês
   const biomassaTotal = dadosUltimoMes.reduce((acc, curr) => acc + curr.biomassa, 0);
   const biomassaTotalAnterior = dadosPenultimoMes.reduce((acc, curr) => acc + curr.biomassa, 0);
   const variacaoBiomassa = ((biomassaTotal - biomassaTotalAnterior) / biomassaTotalAnterior) * 100;
 
-  // Calcula médias do último mês
   const fcaMedio = dadosUltimoMes.reduce((acc, curr) => acc + curr.fca, 0) / dadosUltimoMes.length;
   const fcaMedioAnterior = dadosPenultimoMes.reduce((acc, curr) => acc + curr.fca, 0) / dadosPenultimoMes.length;
   const variacaoFca = ((fcaMedio - fcaMedioAnterior) / fcaMedioAnterior) * 100;
@@ -72,21 +67,17 @@ function calcularMetricas() {
   ];
 }
 
-// Função para processar dados de evolução
-function processarEvolucaoPeso(tanqueId: number) {
-  const dados = filtrarDadosPorTanque(tanqueId);
-  return dados.map(d => ({
+function processarEvolucaoPeso(data: any) {
+  return data.map(d => ({
     data: d.mes,
     atual: d.biomassa,
     ideal: d.projecao,
   }));
 }
 
-// Função para processar dados de ração por tanque
-function processarRacaoPorTanque() {
-  return tanques.map(tanque => {
-    const dadosTanque = filtrarDadosPorTanque(tanque.id);
-    const ultimoDado = dadosTanque[dadosTanque.length - 1];
+function processarRacaoPorTanque(data: any) {
+  return data.map(tanque => {
+    const ultimoDado = tanque.dados[tanque.dados.length - 1];
     return {
       tanque: tanque.nome,
       usada: Number((ultimoDado.biomassa * ultimoDado.fca).toFixed(2)),
@@ -103,21 +94,33 @@ const chartColors = {
 
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
-  const metricas = calcularMetricas();
-  const evolucaoPeso = processarEvolucaoPeso(1);
-  const racaoPorTanque = processarRacaoPorTanque();
+  const [dashboardData, setDashboardData] = useState<any>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 100);
-
-    return () => clearTimeout(timer);
+    async function loadData() {
+      try {
+        const data = await fetchDashBoardInfo();
+        setDashboardData(data);
+      } catch (error) {
+        setDashboardData(null);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadData();
   }, []);
 
   if (isLoading) {
     return <PageLoading />;
   }
+
+  if (!dashboardData) {
+    return <div className="p-8">Erro ao carregar dados do dashboard.</div>;
+  }
+
+  const metricas = calcularMetricas(dashboardData);
+  const evolucaoPeso = processarEvolucaoPeso(dashboardData);
+  const racaoPorTanque = processarRacaoPorTanque(dashboardData);
 
   return (
     <div className="p-8 min-h-screen bg-page">

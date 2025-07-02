@@ -10,7 +10,6 @@ export default function Login() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Aqui você implementará a lógica de autenticação
     router.push('/dashboard');
   };
 
