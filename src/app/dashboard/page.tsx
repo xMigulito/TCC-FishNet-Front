@@ -16,7 +16,29 @@ import {
 import PageLoading from '@/components/PageLoading';
 import { fetchDashBoardInfo } from '@/api/api';
 
-function calcularMetricas(data: any) {
+interface DadosTanque {
+  mes: string;
+  biomassa: number;
+  fca: number;
+  mortalidade: number;
+  projecao: number;
+}
+
+interface Tanque {
+  id: number;
+  nome: string;
+  dados: DadosTanque[];
+}
+
+interface Metrica {
+  titulo: string;
+  valor: string;
+  variacao: string;
+  cor: string;
+  descricao: string;
+}
+
+function calcularMetricas(data: Tanque[]): Metrica[] {
   const dadosUltimoMes = data.map(tanque => {
     const dadosTanque = tanque.dados;
     return dadosTanque[dadosTanque.length - 1];
@@ -67,16 +89,16 @@ function calcularMetricas(data: any) {
   ];
 }
 
-function processarEvolucaoPeso(data: any) {
-  return data.map(d => ({
-    data: d.mes,
-    atual: d.biomassa,
-    ideal: d.projecao,
+function processarEvolucaoPeso(data: Tanque[]) {
+  return data.map((d: Tanque) => ({
+    data: d.dados[d.dados.length - 1].mes,
+    atual: d.dados[d.dados.length - 1].biomassa,
+    ideal: d.dados[d.dados.length - 1].projecao,
   }));
 }
 
-function processarRacaoPorTanque(data: any) {
-  return data.map(tanque => {
+function processarRacaoPorTanque(data: Tanque[]) {
+  return data.map((tanque: Tanque) => {
     const ultimoDado = tanque.dados[tanque.dados.length - 1];
     return {
       tanque: tanque.nome,
@@ -84,6 +106,12 @@ function processarRacaoPorTanque(data: any) {
       projetada: Number((ultimoDado.projecao * ultimoDado.fca).toFixed(2)),
     };
   });
+}
+
+// Função para formatar datas para mês/ano
+function formatarMesAno(data: string | Date) {
+  const d = new Date(data);
+  return d.toLocaleDateString('pt-BR', { month: '2-digit', year: 'numeric' });
 }
 
 const chartColors = {
@@ -94,14 +122,14 @@ const chartColors = {
 
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
-  const [dashboardData, setDashboardData] = useState<any>(null);
+  const [dashboardData, setDashboardData] = useState<Tanque[] | null>(null);
 
   useEffect(() => {
     async function loadData() {
       try {
         const data = await fetchDashBoardInfo();
         setDashboardData(data);
-      } catch (error) {
+      } catch {
         setDashboardData(null);
       } finally {
         setIsLoading(false);
@@ -119,7 +147,10 @@ export default function Dashboard() {
   }
 
   const metricas = calcularMetricas(dashboardData);
-  const evolucaoPeso = processarEvolucaoPeso(dashboardData);
+  const evolucaoPeso = processarEvolucaoPeso(dashboardData).map(d => ({
+    ...d,
+    data: formatarMesAno(d.data),
+  }));
   const racaoPorTanque = processarRacaoPorTanque(dashboardData);
 
   return (
@@ -144,7 +175,10 @@ export default function Dashboard() {
             <h2 className="text-xl font-bold text-primary mb-4">Evolução da Biomassa (kg)</h2>
             <div className="h-[220px]">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={evolucaoPeso}>
+                <LineChart
+                  data={evolucaoPeso}
+                  margin={{ left: 40, right: 20, top: 20, bottom: 20 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                   <XAxis dataKey="data" stroke={chartColors.primary} />
                   <YAxis stroke={chartColors.primary} />
@@ -160,14 +194,16 @@ export default function Dashboard() {
             <h2 className="text-xl font-bold text-primary mb-4">Uso de Ração por Tanque (kg)</h2>
             <div className="h-[220px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={racaoPorTanque}>
+                <BarChart
+                  data={racaoPorTanque}
+                  margin={{ left: 40, right: 20, top: 20, bottom: 20 }}
+                >
                   <CartesianGrid strokeDasharray="3 3" stroke={chartColors.grid} />
                   <XAxis dataKey="tanque" stroke={chartColors.primary} />
                   <YAxis stroke={chartColors.primary} />
                   <Tooltip contentStyle={{ backgroundColor: 'white', borderRadius: '0.5rem', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
                   <Legend />
                   <Bar dataKey="usada" fill={chartColors.secondary} name="Ração Usada" />
-                  <Bar dataKey="projetada" fill={chartColors.primary} name="Ração Projetada" />
                 </BarChart>
               </ResponsiveContainer>
             </div>

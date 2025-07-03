@@ -19,6 +19,7 @@ const chartColors = {
   mortalidade: 'var(--primary)',
   fca: 'var(--secondary)',
   projecao: 'var(--primary)',
+  meta: '#FF6B6B',
   grid: 'var(--grid)',
   axis: 'var(--primary)',
 };
@@ -35,6 +36,7 @@ interface DadosGrafico {
   mortalidade: number;
   fca: number;
   projecao: number;
+  meta?: number;
 }
 
 interface Tanque {
@@ -87,6 +89,7 @@ export default function Graficos() {
   const dadosGraficosFormatados = dadosGraficos.map(d => ({
     ...d,
     mes: formatarData(d.mes),
+    meta: 1.8, // Linha de meta para FCA
   }));
 
   return (
@@ -240,7 +243,16 @@ export default function Graficos() {
                     strokeWidth={2}
                     dot={{ fill: chartColors.fca, strokeWidth: 2 }}
                     activeDot={{ r: 6 }}
-                    name="FCA" 
+                    name="FCA Atual" 
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="meta" 
+                    stroke={chartColors.meta}
+                    strokeWidth={2}
+                    strokeDasharray="5 5"
+                    dot={false}
+                    name="Meta (1.8)" 
                   />
                 </LineChart>
               </ResponsiveContainer>

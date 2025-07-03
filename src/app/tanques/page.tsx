@@ -15,6 +15,41 @@ interface TanqueResumo {
   ultimaRacao?: number | null;
 }
 
+function getStatus(valor, tipo) {
+  if (valor === undefined || valor === null || isNaN(valor)) return { texto: 'Indefinido', cor: 'bg-gray-200 text-gray-600' };
+  if (tipo === 'fca') {
+    if (valor <= 1.5) return { texto: 'Excelente', cor: 'bg-green-100 text-green-700' };
+    if (valor <= 2) return { texto: 'Regular', cor: 'bg-yellow-100 text-yellow-700' };
+    return { texto: 'Ruim', cor: 'bg-red-100 text-red-700' };
+  }
+  if (tipo === 'oxigenacao') {
+    if (valor >= 6) return { texto: 'Excelente', cor: 'bg-green-100 text-green-700' };
+    if (valor >= 5) return { texto: 'Regular', cor: 'bg-yellow-100 text-yellow-700' };
+    return { texto: 'Ruim', cor: 'bg-red-100 text-red-700' };
+  }
+  if (tipo === 'ph') {
+    if (valor >= 6.5 && valor <= 8) return { texto: 'Excelente', cor: 'bg-green-100 text-green-700' };
+    if ((valor >= 6 && valor < 6.5) || (valor > 8 && valor <= 8.5)) return { texto: 'Regular', cor: 'bg-yellow-100 text-yellow-700' };
+    return { texto: 'Ruim', cor: 'bg-red-100 text-red-700' };
+  }
+  if (tipo === 'peso') {
+    if (valor >= 800) return { texto: 'Excelente', cor: 'bg-green-100 text-green-700' };
+    if (valor >= 500) return { texto: 'Regular', cor: 'bg-yellow-100 text-yellow-700' };
+    return { texto: 'Ruim', cor: 'bg-red-100 text-red-700' };
+  }
+  if (tipo === 'mortes') {
+    if (valor <= 2) return { texto: 'Excelente', cor: 'bg-green-100 text-green-700' };
+    if (valor <= 5) return { texto: 'Regular', cor: 'bg-yellow-100 text-yellow-700' };
+    return { texto: 'Ruim', cor: 'bg-red-100 text-red-700' };
+  }
+  if (tipo === 'preco') {
+    if (valor <= 6) return { texto: 'Excelente', cor: 'bg-green-100 text-green-700' };
+    if (valor <= 8) return { texto: 'Regular', cor: 'bg-yellow-100 text-yellow-700' };
+    return { texto: 'Ruim', cor: 'bg-red-100 text-red-700' };
+  }
+  return { texto: 'Indefinido', cor: 'bg-gray-200 text-gray-600' };
+}
+
 export default function Tanques() {
   const [tanques, setTanques] = useState<TanqueResumo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -64,11 +99,26 @@ export default function Tanques() {
           <button className="bg-secondary text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-secondary/80 transition-colors">+ Novo Tanque</button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-          {tanques.map((tanque) => (
-            <div key={tanque.id} className="bg-white border border-gray-200 rounded-2xl p-7 flex flex-col justify-between min-h-[220px] shadow-md hover:shadow-lg transition-shadow duration-300">
-              <div>
-                <h2 className="text-xl font-bold text-primary mb-1">{tanque.local || `Tanque ${tanque.id}`}</h2>
-                {/* Barra de capacidade visual */}
+          {tanques.map((tanque) => {
+            // Simulação de valores para exemplo (substitua pelos reais do seu backend)
+            const fca = tanque.ultimaRacao ?? null;
+            const oxigenacao = tanque.ultimaOxigenacao ?? null;
+            const ph = tanque.ultimaTemperatura ?? null; // Substitua pelo campo correto se houver
+            const precoRacao = 5.8; // Substitua pelo campo correto se houver
+            const mortes = 2; // Substitua pelo campo correto se houver
+            const pesoMedio = tanque.pesoMedio ?? null;
+            const ultimaAtualizacao = new Date().toLocaleString('pt-BR'); // Substitua pelo campo correto se houver
+
+            const statusFCA = getStatus(fca, 'fca');
+            const statusOxigenacao = getStatus(oxigenacao, 'oxigenacao');
+            const statusPH = getStatus(ph, 'ph');
+            const statusPreco = getStatus(precoRacao, 'preco');
+            const statusMortes = getStatus(mortes, 'mortes');
+            const statusPeso = getStatus(pesoMedio, 'peso');
+
+            return (
+              <div key={tanque.id} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-md flex flex-col gap-2 min-w-[280px]">
+                <div className="font-bold text-lg text-primary mb-2">{tanque.local || `Tanque ${tanque.id}`}</div>
                 <div className="w-full h-5 bg-gray-200 rounded-full mb-3 relative overflow-hidden border border-gray-300">
                   <div
                     className="h-5 rounded-full flex items-center justify-center transition-all duration-300"
@@ -93,15 +143,36 @@ export default function Tanques() {
                     </span>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-primary mt-2">
-                  <div>Peso Médio<br /><span className="font-bold">{tanque.pesoMedio ? `${tanque.pesoMedio} g` : "-"}</span></div>
-                  <div>Ração Diária<br /><span className="font-bold">{tanque.ultimaRacao ? `${tanque.ultimaRacao} kg` : "-"}</span></div>
-                  <div>Temperatura<br /><span className="font-bold">{tanque.ultimaTemperatura ? `${tanque.ultimaTemperatura} °C` : "-"}</span></div>
-                  <div>Oxigênio<br /><span className="font-bold">{tanque.ultimaOxigenacao ? `${tanque.ultimaOxigenacao} mg/L` : "-"}</span></div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1">🍏 FCA: <span className="font-bold">{fca ?? '-'}</span></span>
+                  <span className={`px-2 py-1 rounded text-xs font-semibold ${statusFCA.cor}`}>{statusFCA.texto}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1">🫧 Oxigenação(mg/L): <span className="font-bold">{oxigenacao ?? '-'}</span></span>
+                  <span className={`px-2 py-1 rounded text-xs font-semibold ${statusOxigenacao.cor}`}>{statusOxigenacao.texto}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1">🧪 pH: <span className="font-bold">{ph ?? '-'}</span></span>
+                  <span className={`px-2 py-1 rounded text-xs font-semibold ${statusPH.cor}`}>{statusPH.texto}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1">💲 Preço da ração(KG): <span className="font-bold">R$ {precoRacao ?? '-'}</span></span>
+                  <span className={`px-2 py-1 rounded text-xs font-semibold ${statusPreco.cor}`}>{statusPreco.texto}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1">💀 Mortes semanais: <span className="font-bold">{mortes ?? '-'} peixes</span></span>
+                  <span className={`px-2 py-1 rounded text-xs font-semibold ${statusMortes.cor}`}>{statusMortes.texto}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="flex items-center gap-1">⚖️ Peso médio: <span className="font-bold">{pesoMedio ? `${pesoMedio}g` : '-'}</span></span>
+                  <span className={`px-2 py-1 rounded text-xs font-semibold ${statusPeso.cor}`}>{statusPeso.texto}</span>
+                </div>
+                <div className="text-xs text-gray-500 mt-2">
+                  Última atualização: {ultimaAtualizacao}
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
