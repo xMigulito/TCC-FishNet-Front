@@ -13,28 +13,33 @@ interface TanqueResumo {
   ultimaOxigenacao?: number | null;
   ultimaTemperatura?: number | null;
   ultimaRacao?: number | null;
+  ultimaPh?: number | null;
+  mortesSemanais?: number | null;
+  fca?: number | null;
 }
 
-function getStatus(valor, tipo) {
+function getStatus(valor: number | null | undefined, tipo: string) {
   if (valor === undefined || valor === null || isNaN(valor)) return { texto: 'Indefinido', cor: 'bg-gray-200 text-gray-600' };
   if (tipo === 'fca') {
-    if (valor <= 1.5) return { texto: 'Excelente', cor: 'bg-green-100 text-green-700' };
-    if (valor <= 2) return { texto: 'Regular', cor: 'bg-yellow-100 text-yellow-700' };
+    if (valor < 1.4) return { texto: 'Excelente', cor: 'bg-green-100 text-green-700' };
+    if (valor >= 1.4 && valor <= 1.8) return { texto: 'Regular', cor: 'bg-yellow-100 text-yellow-700' };
     return { texto: 'Ruim', cor: 'bg-red-100 text-red-700' };
   }
   if (tipo === 'oxigenacao') {
-    if (valor >= 6) return { texto: 'Excelente', cor: 'bg-green-100 text-green-700' };
-    if (valor >= 5) return { texto: 'Regular', cor: 'bg-yellow-100 text-yellow-700' };
-    return { texto: 'Ruim', cor: 'bg-red-100 text-red-700' };
+    if (valor >= 6 && valor <= 6.5) return { texto: 'Ótimo', cor: 'bg-green-100 text-green-700' };
+    if (valor >= 5 && valor < 6) return { texto: 'Adequado', cor: 'bg-blue-100 text-blue-700' };
+    if (valor >= 3 && valor < 5) return { texto: 'Atenção', cor: 'bg-yellow-100 text-yellow-700' };
+    return { texto: 'Crítico', cor: 'bg-red-100 text-red-700' };
   }
   if (tipo === 'ph') {
-    if (valor >= 6.5 && valor <= 8) return { texto: 'Excelente', cor: 'bg-green-100 text-green-700' };
-    if ((valor >= 6 && valor < 6.5) || (valor > 8 && valor <= 8.5)) return { texto: 'Regular', cor: 'bg-yellow-100 text-yellow-700' };
-    return { texto: 'Ruim', cor: 'bg-red-100 text-red-700' };
+    if (valor >= 6 && valor <= 8.5) return { texto: 'Ideal', cor: 'bg-green-100 text-green-700' };
+    if ((valor >= 4.5 && valor < 6) || (valor > 8.5 && valor <= 10.5)) return { texto: 'Atenção', cor: 'bg-yellow-100 text-yellow-700' };
+    return { texto: 'Crítico', cor: 'bg-red-100 text-red-700' };
   }
   if (tipo === 'peso') {
-    if (valor >= 800) return { texto: 'Excelente', cor: 'bg-green-100 text-green-700' };
-    if (valor >= 500) return { texto: 'Regular', cor: 'bg-yellow-100 text-yellow-700' };
+    console.log(valor, tipo);
+    if (valor >= 0.800) return { texto: 'Excelente', cor: 'bg-green-100 text-green-700' };
+    if (valor >= 0.500) return { texto: 'Regular', cor: 'bg-yellow-100 text-yellow-700' };
     return { texto: 'Ruim', cor: 'bg-red-100 text-red-700' };
   }
   if (tipo === 'mortes') {
@@ -100,19 +105,16 @@ export default function Tanques() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {tanques.map((tanque) => {
-            // Simulação de valores para exemplo (substitua pelos reais do seu backend)
-            const fca = tanque.ultimaRacao ?? null;
+            const fca = tanque.fca ?? null;
             const oxigenacao = tanque.ultimaOxigenacao ?? null;
-            const ph = tanque.ultimaTemperatura ?? null; // Substitua pelo campo correto se houver
-            const precoRacao = 5.8; // Substitua pelo campo correto se houver
-            const mortes = 2; // Substitua pelo campo correto se houver
+            const ph = tanque.ultimaPh ?? null;
+            const mortes = tanque.mortesSemanais ?? null;
             const pesoMedio = tanque.pesoMedio ?? null;
-            const ultimaAtualizacao = new Date().toLocaleString('pt-BR'); // Substitua pelo campo correto se houver
+            const ultimaAtualizacao = new Date().toLocaleString('pt-BR');
 
             const statusFCA = getStatus(fca, 'fca');
             const statusOxigenacao = getStatus(oxigenacao, 'oxigenacao');
             const statusPH = getStatus(ph, 'ph');
-            const statusPreco = getStatus(precoRacao, 'preco');
             const statusMortes = getStatus(mortes, 'mortes');
             const statusPeso = getStatus(pesoMedio, 'peso');
 
@@ -154,10 +156,6 @@ export default function Tanques() {
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1">🧪 pH: <span className="font-bold">{ph ?? '-'}</span></span>
                   <span className={`px-2 py-1 rounded text-xs font-semibold ${statusPH.cor}`}>{statusPH.texto}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1">💲 Preço da ração(KG): <span className="font-bold">R$ {precoRacao ?? '-'}</span></span>
-                  <span className={`px-2 py-1 rounded text-xs font-semibold ${statusPreco.cor}`}>{statusPreco.texto}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1">💀 Mortes semanais: <span className="font-bold">{mortes ?? '-'} peixes</span></span>
