@@ -33,3 +33,13 @@ export async function fetchResumoTanques() {
         throw error;
     }
 }
+
+export async function desalojarTanque(alojamentoId: number) {
+    try {
+        const response = await axios.patch(`${TANQUES_API_URL.replace('/tanque', '/tanque-alojamento')}/${alojamentoId}/desalojar`);
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
