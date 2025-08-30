@@ -42,20 +42,31 @@ function calcularMetricas(data: Tanque[]): Metrica[] {
   const dadosUltimoMes = data.map(tanque => {
     const dadosTanque = tanque.dados;
     return dadosTanque[dadosTanque.length - 1];
-  });
+  }).filter(dado => dado !== undefined); // Filtra dados undefined
 
   const dadosPenultimoMes = data.map(tanque => {
     const dadosTanque = tanque.dados;
-    return dadosTanque[dadosTanque.length - 2];
-  });
+    // Verifica se há pelo menos 2 elementos antes de acessar o penúltimo
+    return dadosTanque.length >= 2 ? dadosTanque[dadosTanque.length - 2] : null;
+  }).filter(dado => dado !== null); // Filtra dados null
 
   const biomassaTotal = dadosUltimoMes.reduce((acc, curr) => acc + curr.biomassa, 0);
-  const biomassaTotalAnterior = dadosPenultimoMes.reduce((acc, curr) => acc + curr.biomassa, 0);
-  const variacaoBiomassa = ((biomassaTotal - biomassaTotalAnterior) / biomassaTotalAnterior) * 100;
+  const biomassaTotalAnterior = dadosPenultimoMes.length > 0 
+    ? dadosPenultimoMes.reduce((acc, curr) => acc + curr.biomassa, 0)
+    : biomassaTotal; // Se não há dados anteriores, usa o mesmo valor
+  const variacaoBiomassa = dadosPenultimoMes.length > 0 
+    ? ((biomassaTotal - biomassaTotalAnterior) / biomassaTotalAnterior) * 100
+    : 0; // Se não há dados anteriores, variação é 0
 
-  const fcaMedio = dadosUltimoMes.reduce((acc, curr) => acc + curr.fca, 0) / dadosUltimoMes.length;
-  const fcaMedioAnterior = dadosPenultimoMes.reduce((acc, curr) => acc + curr.fca, 0) / dadosPenultimoMes.length;
-  const variacaoFca = ((fcaMedio - fcaMedioAnterior) / fcaMedioAnterior) * 100;
+  const fcaMedio = dadosUltimoMes.length > 0 
+    ? dadosUltimoMes.reduce((acc, curr) => acc + curr.fca, 0) / dadosUltimoMes.length
+    : 0;
+  const fcaMedioAnterior = dadosPenultimoMes.length > 0 
+    ? dadosPenultimoMes.reduce((acc, curr) => acc + curr.fca, 0) / dadosPenultimoMes.length
+    : fcaMedio; // Se não há dados anteriores, usa o mesmo valor
+  const variacaoFca = dadosPenultimoMes.length > 0 
+    ? ((fcaMedio - fcaMedioAnterior) / fcaMedioAnterior) * 100
+    : 0; // Se não há dados anteriores, variação é 0
 
   return [
     {
@@ -81,7 +92,9 @@ function calcularMetricas(data: Tanque[]): Metrica[] {
     },
     {
       titulo: "Taxa de Mortalidade",
-      valor: `${dadosUltimoMes[0].mortalidade.toFixed(1)}%`,
+      valor: dadosUltimoMes.length > 0 
+        ? `${dadosUltimoMes[0].mortalidade.toFixed(1)}%`
+        : "0.0%",
       variacao: "-0.5%",
       cor: "text-green-600",
       descricao: "desde o último mês",
@@ -123,13 +136,18 @@ const chartColors = {
 export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<Tanque[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadData() {
       try {
+        setIsLoading(true);
+        setError(null);
         const data = await fetchDashBoardInfo();
         setDashboardData(data);
-      } catch {
+      } catch (err) {
+        console.error('Erro ao carregar dados do dashboard:', err);
+        setError('Erro ao carregar dados. Verifique se a API está rodando na porta 3001.');
         setDashboardData(null);
       } finally {
         setIsLoading(false);
@@ -142,8 +160,71 @@ export default function Dashboard() {
     return <PageLoading />;
   }
 
+  if (error) {
+    return (
+      <div className="p-8 min-h-screen bg-page">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-5xl font-extrabold text-primary mb-2">Dashboard</h1>
+          <p className="text-lg text-primary mb-8">Visão geral da piscicultura e métricas importantes</p>
+          
+          <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-md text-center">
+            <div className="flex justify-center mb-6">
+              <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center">
+                <svg className="w-10 h-10 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+            </div>
+            
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Erro ao Carregar Dados
+            </h2>
+            
+            <p className="text-gray-600 mb-6">
+              {error}
+            </p>
+            
+            <div className="space-y-3">
+              <button
+                onClick={() => window.location.reload()}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Tentar Novamente
+              </button>
+            </div>
+            
+            <div className="mt-8 p-4 bg-gray-50 rounded-lg text-left">
+              <h3 className="font-semibold text-gray-900 mb-2">Para resolver:</h3>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• Verifique se a API backend está rodando na porta 3001</li>
+                <li>• Certifique-se de que o banco de dados está conectado</li>
+                <li>• Verifique os logs da API para mais detalhes</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!dashboardData) {
-    return <div className="p-8">Erro ao carregar dados do dashboard.</div>;
+    return (
+      <div className="p-8 min-h-screen bg-page">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-5xl font-extrabold text-primary mb-2">Dashboard</h1>
+          <p className="text-lg text-primary mb-8">Visão geral da piscicultura e métricas importantes</p>
+          
+          <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-md text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Nenhum Dado Disponível
+            </h2>
+            <p className="text-gray-600">
+              Não há dados para exibir no dashboard. Adicione tanques e dados para começar.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const metricas = calcularMetricas(dashboardData);

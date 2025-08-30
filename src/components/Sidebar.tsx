@@ -3,6 +3,7 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useCallback } from 'react';
 import { ChevronDown, LogOut, LayoutDashboard, Settings, FileText, BarChart3, Database } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface MenuItem {
   name: string;
@@ -20,6 +21,7 @@ export default function Sidebar({ isOpen, isMinimized, onToggleMinimize }: Sideb
   const router = useRouter();
   const pathname = usePathname();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { logout, user } = useAuth();
 
   const menuItems: MenuItem[] = [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="w-6 h-6" /> },
@@ -37,8 +39,9 @@ export default function Sidebar({ isOpen, isMinimized, onToggleMinimize }: Sideb
   }, [router]);
 
   const handleLogout = useCallback(() => {
+    logout();
     router.push('/login');
-  }, [router]);
+  }, [logout, router]);
 
   const MenuButton = ({ item }: { item: MenuItem }) => {
     const isActive = pathname === item.path;
@@ -74,11 +77,13 @@ export default function Sidebar({ isOpen, isMinimized, onToggleMinimize }: Sideb
         `}
       >
         <div className="flex items-center justify-center w-8 h-8 rounded-full bg-secondary text-primary font-bold text-sm">
-          U
+          {user?.name?.charAt(0)?.toUpperCase() || 'U'}
         </div>
         {!isMinimized && (
           <>
-            <span className="ml-3 text-sm font-medium sidebar-text">Usuário</span>
+            <span className="ml-3 text-sm font-medium sidebar-text">
+              {user?.name || 'Usuário'}
+            </span>
             <ChevronDown 
               className={`ml-auto w-4 h-4 sidebar-text transition-transform duration-150 ${isProfileOpen ? 'rotate-180' : ''}`}
             />
