@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-const EXTERNAL_API_URL = 'http://localhost:3001/dashboard';
-const TANQUES_API_URL = 'http://localhost:3001/tanque';
-const TANQUES_RESUMO_API_URL = 'http://localhost:3001/tanque/resumo';
+const EXTERNAL_API_URL = 'https://fishnet-api-production.up.railway.app/dashboard';
+const TANQUES_API_URL = 'https://fishnet-api-production.up.railway.app/tanque';
+const TANQUES_RESUMO_API_URL = 'https://fishnet-api-production.up.railway.app/tanque/resumo';
+const TANQUE_ALOJAMENTO_API_URL = 'https://fishnet-api-production.up.railway.app/tanque-alojamento';
 
 export async function fetchDashBoardInfo() {
     try {
@@ -36,7 +37,7 @@ export async function fetchResumoTanques() {
 
 export async function desalojarTanque(alojamentoId: number) {
     try {
-        const response = await axios.patch(`${TANQUES_API_URL.replace('/tanque', '/tanque-alojamento')}/${alojamentoId}/desalojar`);
+        const response = await axios.patch(`${TANQUE_ALOJAMENTO_API_URL}/${alojamentoId}/desalojar`);
         return response.data;
     } catch (error) {
         console.error('Erro ao desalojar tanque:', error);
