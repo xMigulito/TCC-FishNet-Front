@@ -15,6 +15,11 @@ import {
 } from "recharts";
 import PageLoading from '@/components/PageLoading';
 import { fetchDashBoardInfo } from '@/api/api';
+import { useHotJar } from '@/hooks/useHotJar';
+import { useAuth } from '@/contexts/AuthContext';
+import { fetchTanques, fetchResumoTanques } from '@/api/api';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { TrendingUp, TrendingDown, Users, Fish, Thermometer, Droplets, Zap, Eye } from 'lucide-react';
 
 interface DadosTanque {
   mes: string;
@@ -170,6 +175,8 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [dashboardData, setDashboardData] = useState<Tanque[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const { user } = useAuth();
+  const { trackEvent, trackPageView, identifyUser } = useHotJar();
 
   useEffect(() => {
     async function loadData() {
@@ -266,6 +273,23 @@ export default function Dashboard() {
     data: formatarMesAno(d.data),
   }));
   const racaoPorTanque = processarRacaoPorTanque(dashboardData);
+
+  const handleMetricClick = (metricName: string) => {
+    // Rastrear clique em métrica no HotJar
+    trackEvent('Dashboard Metric Clicked', {
+      metricName,
+      timestamp: new Date().toISOString(),
+    });
+  };
+
+  const handleChartInteraction = (chartType: string, action: string) => {
+    // Rastrear interação com gráficos no HotJar
+    trackEvent('Dashboard Chart Interaction', {
+      chartType,
+      action,
+      timestamp: new Date().toISOString(),
+    });
+  };
 
   return (
     <div className="p-8 min-h-screen bg-page">

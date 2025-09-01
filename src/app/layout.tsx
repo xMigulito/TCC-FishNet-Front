@@ -5,6 +5,7 @@ import { Inter } from 'next/font/google';
 import { usePathname, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
+import HotJar from '@/components/HotJar';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import './globals.css';
 
@@ -40,6 +41,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     return (
       <html lang="pt-BR" className="h-full">
         <body className={`${inter.className} h-full`}>
+          <HotJar hotjarId={process.env.NEXT_PUBLIC_HOTJAR_ID || ''} />
           {children}
         </body>
       </html>
@@ -51,6 +53,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     return (
       <html lang="pt-BR" className="h-full">
         <body className={`${inter.className} h-full`}>
+          <HotJar hotjarId={process.env.NEXT_PUBLIC_HOTJAR_ID || ''} />
           <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -69,6 +72,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     return (
       <html lang="pt-BR" className="h-full">
         <body className={`${inter.className} h-full`}>
+          <HotJar hotjarId={process.env.NEXT_PUBLIC_HOTJAR_ID || ''} />
           <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -85,6 +89,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR" className="h-full">
       <body className={`${inter.className} h-full`}>
+        <HotJar hotjarId={process.env.NEXT_PUBLIC_HOTJAR_ID || ''} />
         <div className="flex h-full bg-page">
           <Sidebar 
             isOpen={isSidebarOpen} 

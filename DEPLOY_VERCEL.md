@@ -22,13 +22,19 @@
 - ❌ Dependências incorretas → ✅ Tailwind nas dependências principais
 - ✅ PostCSS configurado corretamente
 
+### **5. HotJar Integrado**
+- ✅ Componente HotJar criado
+- ✅ Hook useHotJar implementado
+- ✅ Integração automática em todas as páginas
+- ✅ Rastreamento de eventos personalizados
+
 ## 🔧 **Passos para Deploy**
 
 ### **1. Preparar o Repositório**
 ```bash
 # Fazer commit das correções
 git add .
-git commit -m "Fix: Tailwind CSS import and dependencies for Vercel"
+git commit -m "Fix: Tailwind CSS, HotJar integration and Vercel compatibility"
 git push origin main
 ```
 
@@ -39,6 +45,7 @@ git push origin main
 4. **Configure** as variáveis de ambiente:
    ```env
    NEXT_PUBLIC_API_URL=https://seu-backend.railway.app
+   NEXT_PUBLIC_HOTJAR_ID=1234567
    NODE_ENV=production
    ```
 
@@ -55,11 +62,18 @@ git push origin main
 NEXT_PUBLIC_API_URL=https://seu-backend.railway.app
 ```
 
-### **Opcionais:**
+### **Recomendadas:**
 ```env
+NEXT_PUBLIC_HOTJAR_ID=1234567
 NODE_ENV=production
-NEXT_PUBLIC_HOTJAR_ID=seu_hotjar_id
 ```
+
+### **Como Configurar HotJar:**
+1. **Acesse**: [hotjar.com](https://hotjar.com)
+2. **Crie conta gratuita**
+3. **Crie novo site/projeto**
+4. **Copie o Site ID**
+5. **Configure no Vercel**: `NEXT_PUBLIC_HOTJAR_ID`
 
 ## 🎯 **Configurações Recomendadas**
 
@@ -70,6 +84,7 @@ NEXT_PUBLIC_HOTJAR_ID=seu_hotjar_id
 
 ### **Environment Variables:**
 - **NEXT_PUBLIC_API_URL**: URL da sua API backend
+- **NEXT_PUBLIC_HOTJAR_ID**: ID do HotJar para analytics
 - **NODE_ENV**: production
 
 ## 🚨 **Possíveis Problemas e Soluções**
@@ -99,6 +114,11 @@ NEXT_PUBLIC_HOTJAR_ID=seu_hotjar_id
 - ✅ Dependências movidas para `dependencies`
 - ✅ PostCSS configurado corretamente
 
+### **6. HotJar não Funcionando**
+- ✅ Verificar variável `NEXT_PUBLIC_HOTJAR_ID`
+- ✅ Verificar console do navegador
+- ✅ Verificar painel do HotJar
+
 ## 📱 **Após o Deploy**
 
 ### **1. Testar Funcionalidades**
@@ -107,6 +127,7 @@ NEXT_PUBLIC_HOTJAR_ID=seu_hotjar_id
 - ✅ Navegação entre páginas
 - ✅ Responsividade
 - ✅ Estilos Tailwind aplicados
+- ✅ HotJar rastreando eventos
 
 ### **2. Configurar Domínio**
 - ✅ Domínio personalizado (opcional)
@@ -117,6 +138,9 @@ NEXT_PUBLIC_HOTJAR_ID=seu_hotjar_id
 - ✅ Analytics do Vercel
 - ✅ Logs de build
 - ✅ Performance metrics
+- ✅ HotJar analytics
+- ✅ Gravações de sessão
+- ✅ Mapas de calor
 
 ## 🔍 **Verificação Final**
 
@@ -127,7 +151,8 @@ NEXT_PUBLIC_HOTJAR_ID=seu_hotjar_id
 - [ ] Todas as páginas carregando
 - [ ] Responsividade funcionando
 - [ ] Estilos Tailwind aplicados
-- [ ] HotJar integrado (quando implementar)
+- [ ] HotJar funcionando e rastreando
+- [ ] Eventos sendo registrados no painel
 
 ## 🎉 **Resultado Esperado**
 
@@ -137,9 +162,25 @@ Após essas correções, o deploy no Vercel deve funcionar perfeitamente:
 - ✅ **Performance**: Otimizada
 - ✅ **Compatibilidade**: Total
 - ✅ **Estilos**: Tailwind funcionando
+- ✅ **Analytics**: HotJar integrado
+
+## 🔥 **HotJar Funcionalidades**
+
+### **Rastreamento Automático:**
+- ✅ Visualização de páginas
+- ✅ Navegação entre seções
+- ✅ Interações com componentes
+- ✅ Eventos personalizados
+
+### **Insights Disponíveis:**
+- 📹 Gravações de sessão
+- 🎯 Mapas de calor
+- 📊 Análise de formulários
+- 🔍 Feedback do usuário
+- 📈 Análise de conversão
 
 ---
 
 **Deploy realizado com sucesso! 🚀**
 
-O FishNet estará rodando no Vercel com todas as funcionalidades implementadas e estilos aplicados corretamente.
+O FishNet estará rodando no Vercel com todas as funcionalidades implementadas, estilos aplicados corretamente e HotJar integrado para analytics avançados.
