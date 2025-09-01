@@ -17,13 +17,18 @@
 - ✅ Configuração simplificada e funcional
 - ✅ Framework Next.js detectado automaticamente
 
+### **4. Tailwind CSS Corrigido**
+- ❌ `@import "tailwindcss"` → ✅ `@tailwind base; @tailwind components; @tailwind utilities;`
+- ❌ Dependências incorretas → ✅ Tailwind nas dependências principais
+- ✅ PostCSS configurado corretamente
+
 ## 🔧 **Passos para Deploy**
 
 ### **1. Preparar o Repositório**
 ```bash
 # Fazer commit das correções
 git add .
-git commit -m "Fix: Convert config files to JS and fix vercel.json"
+git commit -m "Fix: Tailwind CSS import and dependencies for Vercel"
 git push origin main
 ```
 
@@ -89,6 +94,11 @@ NEXT_PUBLIC_HOTJAR_ID=seu_hotjar_id
 - ✅ Configuração simplificada
 - ✅ Framework detectado automaticamente
 
+### **5. Erro de Tailwind CSS**
+- ✅ Import corrigido para `@tailwind` diretivas
+- ✅ Dependências movidas para `dependencies`
+- ✅ PostCSS configurado corretamente
+
 ## 📱 **Após o Deploy**
 
 ### **1. Testar Funcionalidades**
@@ -96,6 +106,7 @@ NEXT_PUBLIC_HOTJAR_ID=seu_hotjar_id
 - ✅ Dashboard carregando
 - ✅ Navegação entre páginas
 - ✅ Responsividade
+- ✅ Estilos Tailwind aplicados
 
 ### **2. Configurar Domínio**
 - ✅ Domínio personalizado (opcional)
@@ -115,6 +126,7 @@ NEXT_PUBLIC_HOTJAR_ID=seu_hotjar_id
 - [ ] API conectando com backend
 - [ ] Todas as páginas carregando
 - [ ] Responsividade funcionando
+- [ ] Estilos Tailwind aplicados
 - [ ] HotJar integrado (quando implementar)
 
 ## 🎉 **Resultado Esperado**
@@ -124,9 +136,10 @@ Após essas correções, o deploy no Vercel deve funcionar perfeitamente:
 - ✅ **Deploy**: Automático
 - ✅ **Performance**: Otimizada
 - ✅ **Compatibilidade**: Total
+- ✅ **Estilos**: Tailwind funcionando
 
 ---
 
 **Deploy realizado com sucesso! 🚀**
 
-O FishNet estará rodando no Vercel com todas as funcionalidades implementadas.
+O FishNet estará rodando no Vercel com todas as funcionalidades implementadas e estilos aplicados corretamente.
