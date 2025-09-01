@@ -1,18 +1,26 @@
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Configurações básicas para compatibilidade
+  reactStrictMode: true,
+  swcMinify: true,
+  
+  // Otimizações de build
+  compress: true,
+  
+  // Configuração de imagens
+  images: {
+    formats: ['image/webp', 'image/avif'],
+    unoptimized: false,
+  },
+  
+  // Configuração experimental (mais estável)
   experimental: {
-    optimizeCss: true,
     optimizePackageImports: ['recharts'],
   },
   
-  compress: true,
-  
-  images: {
-    formats: ['image/webp', 'image/avif'],
-  },
-  
+  // Configuração de webpack simplificada
   webpack: (config, { dev, isServer }) => {
+    // Otimizações apenas para produção
     if (!dev && !isServer) {
       config.optimization = {
         ...config.optimization,
@@ -33,4 +41,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
