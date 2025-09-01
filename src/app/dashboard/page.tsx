@@ -22,6 +22,11 @@ interface DadosTanque {
   fca: number;
   mortalidade: number;
   projecao: number;
+  percentualRenovacaoAgua?: number;
+  nitrito?: number;
+  amonia?: number;
+  transparencia?: number;
+  quantidadeAlimentacoes?: number;
 }
 
 interface Tanque {
@@ -42,31 +47,47 @@ function calcularMetricas(data: Tanque[]): Metrica[] {
   const dadosUltimoMes = data.map(tanque => {
     const dadosTanque = tanque.dados;
     return dadosTanque[dadosTanque.length - 1];
-  }).filter(dado => dado !== undefined); // Filtra dados undefined
+  }).filter(dado => dado !== undefined);
 
   const dadosPenultimoMes = data.map(tanque => {
     const dadosTanque = tanque.dados;
-    // Verifica se há pelo menos 2 elementos antes de acessar o penúltimo
     return dadosTanque.length >= 2 ? dadosTanque[dadosTanque.length - 2] : null;
-  }).filter(dado => dado !== null); // Filtra dados null
+  }).filter(dado => dado !== null);
 
   const biomassaTotal = dadosUltimoMes.reduce((acc, curr) => acc + curr.biomassa, 0);
   const biomassaTotalAnterior = dadosPenultimoMes.length > 0 
     ? dadosPenultimoMes.reduce((acc, curr) => acc + curr.biomassa, 0)
-    : biomassaTotal; // Se não há dados anteriores, usa o mesmo valor
+    : biomassaTotal;
   const variacaoBiomassa = dadosPenultimoMes.length > 0 
     ? ((biomassaTotal - biomassaTotalAnterior) / biomassaTotalAnterior) * 100
-    : 0; // Se não há dados anteriores, variação é 0
+    : 0;
 
   const fcaMedio = dadosUltimoMes.length > 0 
     ? dadosUltimoMes.reduce((acc, curr) => acc + curr.fca, 0) / dadosUltimoMes.length
     : 0;
   const fcaMedioAnterior = dadosPenultimoMes.length > 0 
     ? dadosPenultimoMes.reduce((acc, curr) => acc + curr.fca, 0) / dadosPenultimoMes.length
-    : fcaMedio; // Se não há dados anteriores, usa o mesmo valor
+    : fcaMedio;
   const variacaoFca = dadosPenultimoMes.length > 0 
     ? ((fcaMedio - fcaMedioAnterior) / fcaMedioAnterior) * 100
-    : 0; // Se não há dados anteriores, variação é 0
+    : 0;
+
+  // Novas métricas
+  const percentualRenovacaoMedio = dadosUltimoMes.length > 0 
+    ? dadosUltimoMes.reduce((acc, curr) => acc + (curr.percentualRenovacaoAgua || 0), 0) / dadosUltimoMes.length
+    : 0;
+
+  const nitritoMedio = dadosUltimoMes.length > 0 
+    ? dadosUltimoMes.reduce((acc, curr) => acc + (curr.nitrito || 0), 0) / dadosUltimoMes.length
+    : 0;
+
+  const transparenciaMedia = dadosUltimoMes.length > 0 
+    ? dadosUltimoMes.reduce((acc, curr) => acc + (curr.transparencia || 0), 0) / dadosUltimoMes.length
+    : 0;
+
+  const alimentacoesMedio = dadosUltimoMes.length > 0 
+    ? dadosUltimoMes.reduce((acc, curr) => acc + (curr.quantidadeAlimentacoes || 0), 0) / dadosUltimoMes.length
+    : 0;
 
   return [
     {
@@ -84,20 +105,32 @@ function calcularMetricas(data: Tanque[]): Metrica[] {
       descricao: "desde o último mês",
     },
     {
-      titulo: "Qualidade da Água",
-      valor: "7.5 pH",
-      variacao: "+0.2%",
-      cor: "text-green-600",
-      descricao: "desde o último mês",
+      titulo: "Renovação de Água",
+      valor: `${percentualRenovacaoMedio.toFixed(1)}%`,
+      variacao: percentualRenovacaoMedio >= 15 ? "Ótimo" : percentualRenovacaoMedio >= 10 ? "Bom" : "Atenção",
+      cor: percentualRenovacaoMedio >= 15 ? "text-green-600" : percentualRenovacaoMedio >= 10 ? "text-yellow-600" : "text-red-600",
+      descricao: "média dos tanques",
     },
     {
-      titulo: "Taxa de Mortalidade",
-      valor: dadosUltimoMes.length > 0 
-        ? `${dadosUltimoMes[0].mortalidade.toFixed(1)}%`
-        : "0.0%",
-      variacao: "-0.5%",
-      cor: "text-green-600",
-      descricao: "desde o último mês",
+      titulo: "Qualidade da Água",
+      valor: `${nitritoMedio.toFixed(3)} mg/L`,
+      variacao: nitritoMedio <= 0.05 ? "Ótima" : nitritoMedio <= 0.1 ? "Boa" : "Atenção",
+      cor: nitritoMedio <= 0.05 ? "text-green-600" : nitritoMedio <= 0.1 ? "text-yellow-600" : "text-red-600",
+      descricao: "nitrito médio",
+    },
+    {
+      titulo: "Alimentações",
+      valor: `${alimentacoesMedio.toFixed(1)}x`,
+      variacao: alimentacoesMedio >= 3 ? "Ideal" : alimentacoesMedio >= 2 ? "Bom" : "Pouco",
+      cor: alimentacoesMedio >= 3 ? "text-green-600" : alimentacoesMedio >= 2 ? "text-yellow-600" : "text-red-600",
+      descricao: "por dia (média)",
+    },
+    {
+      titulo: "Transparência",
+      valor: `${transparenciaMedia.toFixed(1)} cm`,
+      variacao: transparenciaMedia >= 20 ? "Ótima" : transparenciaMedia >= 15 ? "Boa" : "Baixa",
+      cor: transparenciaMedia >= 20 ? "text-green-600" : transparenciaMedia >= 15 ? "text-yellow-600" : "text-red-600",
+      descricao: "média dos tanques",
     },
   ];
 }
@@ -240,13 +273,13 @@ export default function Dashboard() {
         <h1 className="text-5xl font-extrabold text-primary mb-2">Dashboard</h1>
         <p className="text-lg text-primary mb-8">Visão geral da piscicultura e métricas importantes</p>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-10">
           {metricas.map((m, i) => (
-            <div key={i} className="bg-white rounded-2xl p-7 border border-gray-200 flex flex-col items-center shadow-md hover:shadow-lg transition-shadow duration-300">
-              <span className="text-lg text-primary font-semibold mb-1">{m.titulo}</span>
-              <span className="text-3xl font-bold text-primary mb-2">{m.valor}</span>
-              <span className={`text-sm font-semibold ${m.cor}`}>{m.variacao}</span>
-              <span className="text-xs text-gray-500">{m.descricao}</span>
+            <div key={i} className="bg-white rounded-2xl p-6 border border-gray-200 flex flex-col items-center shadow-md hover:shadow-lg transition-shadow duration-300">
+              <span className="text-sm text-primary font-semibold mb-1 text-center">{m.titulo}</span>
+              <span className="text-2xl font-bold text-primary mb-2 text-center">{m.valor}</span>
+              <span className={`text-xs font-semibold ${m.cor} text-center`}>{m.variacao}</span>
+              <span className="text-xs text-gray-500 text-center">{m.descricao}</span>
             </div>
           ))}
         </div>
