@@ -37,7 +37,7 @@ export function useCache<T = any>({
       // Verificar cache primeiro (se não for refresh forçado)
       if (!forceRefresh) {
         const cachedData = cache.get(createCacheConfig(key, ttl));
-        if (cachedData) {
+        if (cachedData !== null) {
           console.log(`📦 Dados de ${key} carregados do cache`);
           setData(cachedData);
           setIsFromCache(true);

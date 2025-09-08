@@ -37,7 +37,7 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
     if (isOpen && tanqueId) {
       loadAlojamentos();
     }
-  }, [isOpen, tanqueId]);
+  }, [isOpen, tanqueId, loadAlojamentos]);
 
   const loadAlojamentos = async () => {
     try {

@@ -41,7 +41,7 @@ export default function BiometriaModal({ isOpen, onClose, onSuccess, tanqueId }:
     if (isOpen && tanqueId) {
       loadAlojamentos();
     }
-  }, [isOpen, tanqueId]);
+  }, [isOpen, tanqueId, loadAlojamentos]);
 
   const loadAlojamentos = async () => {
     try {
