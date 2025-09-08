@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
+import { login as apiLogin, logout as apiLogout, getCurrentUser, isAuthenticated } from '../api/api';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -25,18 +26,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Verificar se há token salvo no localStorage
     try {
-      const token = localStorage.getItem('fishnet_token');
-      const savedUser = localStorage.getItem('fishnet_user');
-      
-      if (token && savedUser) {
-        setIsAuthenticated(true);
-        setUser(JSON.parse(savedUser));
+      if (isAuthenticated()) {
+        const savedUser = getCurrentUser();
+        if (savedUser) {
+          setIsAuthenticated(true);
+          setUser(savedUser);
+        }
       }
     } catch (error) {
       console.error('Erro ao verificar autenticação:', error);
       // Limpar dados corrompidos
-      localStorage.removeItem('fishnet_token');
-      localStorage.removeItem('fishnet_user');
+      apiLogout();
     } finally {
       setIsLoading(false);
     }
@@ -44,25 +44,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      // Simular uma chamada de API
-      // Em produção, você faria uma chamada real para sua API
-      if (email && password) {
-        const mockUser = {
-          id: 1,
-          email,
-          name: 'Usuário FishNet',
-          role: 'admin'
-        };
-
-        // Simular delay da API
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Salvar no localStorage
-        localStorage.setItem('fishnet_token', 'mock_token_123');
-        localStorage.setItem('fishnet_user', JSON.stringify(mockUser));
-
+      const response = await apiLogin(email, password);
+      
+      if (response.access_token && response.user) {
         setIsAuthenticated(true);
-        setUser(mockUser);
+        setUser(response.user);
         return true;
       }
       return false;
@@ -73,8 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('fishnet_token');
-    localStorage.removeItem('fishnet_user');
+    apiLogout();
     setIsAuthenticated(false);
     setUser(null);
   };
