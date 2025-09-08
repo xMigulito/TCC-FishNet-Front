@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import axios from "axios";
+import { API_ENDPOINTS } from "../config/api";
 
 interface NovoTanqueModalProps {
   isOpen: boolean;
@@ -24,7 +25,7 @@ export default function NovoTanqueModal({ isOpen, onClose, onSuccess }: NovoTanq
     setErro("");
 
     try {
-      await axios.post("http://localhost:3001/tanque", {
+      await axios.post(API_ENDPOINTS.TANQUES, {
         Local: formData.Local,
         Largura: parseFloat(formData.Largura),
         Comprimento: parseFloat(formData.Comprimento),

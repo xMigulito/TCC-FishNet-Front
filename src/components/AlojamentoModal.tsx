@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import axios from "axios";
+import { API_ENDPOINTS } from "../config/api";
 
 interface AlojamentoModalProps {
   isOpen: boolean;
@@ -27,7 +28,7 @@ export default function AlojamentoModal({ isOpen, onClose, onSuccess, tanqueId }
     setErro("");
 
     try {
-      await axios.post("http://localhost:3001/tanque-alojamento", {
+      await axios.post(API_ENDPOINTS.ALOJAMENTOS, {
         Tanque_Id: tanqueId,
         Data_Alojamento: new Date(formData.Data_Alojamento),
         Total_Peixes: parseInt(formData.Total_Peixes),

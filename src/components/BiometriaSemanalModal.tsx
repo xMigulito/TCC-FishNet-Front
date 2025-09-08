@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { fetchAlojamentos } from "../api/api";
+import { API_ENDPOINTS } from "../config/api";
 
 interface BiometriaSemanalModalProps {
   isOpen: boolean;
@@ -34,23 +36,25 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
   const [erro, setErro] = useState("");
 
   useEffect(() => {
+    const loadAlojamentos = async () => {
+      try {
+        const alojamentos = await fetchAlojamentos();
+        const alojamentosAtivos = alojamentos.filter((alojamento: TanqueAlojamento) => 
+          !alojamento.Data_Saida && alojamento.Tanque_Id === tanqueId
+        );
+        setAlojamentos(alojamentosAtivos);
+        if (alojamentosAtivos.length > 0) {
+          setSelectedAlojamento(alojamentosAtivos[0].id);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar alojamentos:", error);
+      }
+    };
+
     if (isOpen && tanqueId) {
       loadAlojamentos();
     }
-  }, [isOpen, tanqueId, loadAlojamentos]);
-
-  const loadAlojamentos = async () => {
-    try {
-      const response = await axios.get(`http://localhost:3001/tanque-alojamento/tanque/${tanqueId}`);
-      const alojamentosAtivos = response.data.filter((alojamento: TanqueAlojamento) => !alojamento.Data_Saida);
-      setAlojamentos(alojamentosAtivos);
-      if (alojamentosAtivos.length > 0) {
-        setSelectedAlojamento(alojamentosAtivos[0].id);
-      }
-    } catch (error) {
-      console.error("Erro ao carregar alojamentos:", error);
-    }
-  };
+  }, [isOpen, tanqueId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +67,7 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
     setErro("");
 
     try {
-      await axios.post("http://localhost:3001/biometria-semanal", {
+      await axios.post(API_ENDPOINTS.BIOMETRIAS_SEMANAIS, {
         Tanque_Alojamento_Id: selectedAlojamento,
         Data_Alojamento: new Date(formData.Data_Alojamento),
         Peixes_Mortos: parseInt(formData.Peixes_Mortos),
