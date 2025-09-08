@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
-import { login as apiLogin, logout as apiLogout, getCurrentUser, isAuthenticated } from '../api/api';
+import { login as apiLogin, logout as apiLogout, getCurrentUser, isAuthenticated as checkAuth } from '../api/api';
 
 interface AuthContextType {
   isAuthenticated: boolean;
@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Verificar se há token salvo no localStorage
     try {
-      if (isAuthenticated()) {
+      if (checkAuth()) {
         const savedUser = getCurrentUser();
         if (savedUser) {
           setIsAuthenticated(true);
