@@ -14,10 +14,9 @@ import {
   Bar,
 } from "recharts";
 import PageLoading from '@/components/PageLoading';
-import { fetchDashBoardInfo } from '@/api/api';
 import { useHotJar } from '@/hooks/useHotJar';
 import { useAuth } from '@/contexts/AuthContext';
-import { fetchTanques, fetchResumoTanques } from '@/api/api';
+import { useDashboard } from '@/hooks/useCache';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Users, Fish, Thermometer, Droplets, Zap, Eye } from 'lucide-react';
 
@@ -172,29 +171,17 @@ const chartColors = {
 };
 
 export default function Dashboard() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [dashboardData, setDashboardData] = useState<Tanque[] | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const { user } = useAuth();
   const { trackEvent, trackPageView, identifyUser } = useHotJar();
-
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setIsLoading(true);
-        setError(null);
-        const data = await fetchDashBoardInfo();
-        setDashboardData(data);
-      } catch (err) {
-        console.error('Erro ao carregar dados do dashboard:', err);
-        setError('Erro ao carregar dados. Verifique se a API está rodando na porta 3001.');
-        setDashboardData(null);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    loadData();
-  }, []);
+  
+  // Usar o hook de cache para buscar dados do dashboard
+  const { 
+    data: dashboardData, 
+    loading: isLoading, 
+    error, 
+    refresh, 
+    isFromCache 
+  } = useDashboard();
 
   if (isLoading) {
     return <PageLoading />;
@@ -221,12 +208,12 @@ export default function Dashboard() {
             </h2>
             
             <p className="text-gray-600 mb-6">
-              {error}
+              {error.message || 'Erro ao carregar dados. Verifique se a API está rodando na porta 3001.'}
             </p>
             
             <div className="space-y-3">
               <button
-                onClick={() => window.location.reload()}
+                onClick={refresh}
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
               >
                 Tentar Novamente
@@ -294,8 +281,20 @@ export default function Dashboard() {
   return (
     <div className="p-8 min-h-screen bg-page">
       <div className="max-w-7xl mx-auto">
-        <h1 className="text-5xl font-extrabold text-primary mb-2">Dashboard</h1>
-        <p className="text-lg text-primary mb-8">Visão geral da piscicultura e métricas importantes</p>
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h1 className="text-5xl font-extrabold text-primary mb-2">Dashboard</h1>
+            <p className="text-lg text-primary">Visão geral da piscicultura e métricas importantes</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={refresh}
+              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+            >
+              🔄 Atualizar
+            </button>
+          </div>
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-10">
           {metricas.map((m, i) => (
