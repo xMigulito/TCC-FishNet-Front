@@ -172,7 +172,7 @@ const chartColors = {
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const { trackEvent, trackPageView, identifyUser } = useHotJar();
+  const { trackEvent, trackPageView, identifyUser, getDebugInfo, testConnection, isHotJarAvailable } = useHotJar();
   
   // Usar o hook de cache para buscar dados do dashboard
   const { 
@@ -183,10 +183,32 @@ export default function Dashboard() {
     isFromCache 
   } = useDashboard();
 
-  // Rastrear visualização da página
+  // Rastrear visualização da página e debug do HotJar
   useEffect(() => {
     trackPageView('Dashboard');
-  }, [trackPageView]);
+    
+    // Debug do HotJar
+    console.log('🔍 Verificando status do HotJar...');
+    const debugInfo = getDebugInfo();
+    
+    // Testar conexão após 2 segundos
+    setTimeout(() => {
+      console.log('🧪 Testando conexão do HotJar...');
+      testConnection();
+    }, 2000);
+    
+    // Identificar usuário se disponível
+    if (user) {
+      setTimeout(() => {
+        identifyUser({
+          userId: user.id,
+          userEmail: user.email,
+          userName: user.nome,
+          userRole: user.role,
+        });
+      }, 3000);
+    }
+  }, [trackPageView, getDebugInfo, testConnection, identifyUser, user]);
 
   if (isLoading) {
     return <PageLoading />;
@@ -303,6 +325,20 @@ export default function Dashboard() {
               className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
             >
               🔄 Atualizar
+            </button>
+            <button
+              onClick={() => {
+                console.log('🔍 Debug do HotJar:');
+                getDebugInfo();
+                testConnection();
+                trackEvent('HotJar Debug Test', {
+                  timestamp: new Date().toISOString(),
+                  userAgent: navigator.userAgent,
+                });
+              }}
+              className="px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors text-sm"
+            >
+              🔍 Debug HotJar
             </button>
           </div>
         </div>
