@@ -88,6 +88,20 @@ export default function BiometriaModal({ isOpen, onClose, onSuccess, tanqueId }:
         Quantidade_Alimentacoes: formData.Quantidade_Alimentacoes ? parseInt(formData.Quantidade_Alimentacoes) : undefined,
       });
 
+      // Rastrear criação de biometria diária
+      trackEvent('Daily Biometry Created', {
+        tanqueId: tanqueId,
+        alojamentoId: selectedAlojamento,
+        data: formData.Data,
+        racao: parseFloat(formData.Racao),
+        temperaturaAgua: parseFloat(formData.Temperatura_Agua),
+        ph: parseFloat(formData.Ph),
+        oxigenacao: parseFloat(formData.Oxigenacao),
+        timestamp: new Date().toISOString()
+      });
+      
+      trackConversion('Daily Biometry Created', 1);
+
       setFormData({
         Data: new Date().toISOString().split('T')[0],
         Racao: "",
@@ -105,6 +119,15 @@ export default function BiometriaModal({ isOpen, onClose, onSuccess, tanqueId }:
       onClose();
     } catch (error) {
       setErro("Erro ao inserir biometria. Verifique os dados e tente novamente.");
+      
+      // Rastrear erro na criação
+      trackEvent('Daily Biometry Creation Error', {
+        tanqueId: tanqueId,
+        alojamentoId: selectedAlojamento,
+        data: formData.Data,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
     } finally {
       setIsLoading(false);
     }

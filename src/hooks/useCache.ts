@@ -88,62 +88,74 @@ export function useCache<T = any>({
 }
 
 // Hooks específicos para cada tipo de dados
-export function useDashboard(forceRefresh = false) {
+export function useDashboard() {
+  const fetchFunction = useCallback(async () => {
+    const { fetchDashBoardInfo } = await import('../api/api');
+    return fetchDashBoardInfo(false);
+  }, []);
+
   return useCache({
     key: CACHE_KEYS.DASHBOARD,
-    fetchFunction: async () => {
-      const { fetchDashBoardInfo } = await import('../api/api');
-      return fetchDashBoardInfo(forceRefresh);
-    }
+    fetchFunction
   });
 }
 
-export function useTanques(forceRefresh = false) {
+export function useTanques() {
+  const fetchFunction = useCallback(async () => {
+    const { fetchTanques } = await import('../api/api');
+    return fetchTanques(false);
+  }, []);
+
   return useCache({
     key: CACHE_KEYS.TANQUES,
-    fetchFunction: async () => {
-      const { fetchTanques } = await import('../api/api');
-      return fetchTanques(forceRefresh);
-    }
+    fetchFunction
   });
 }
 
-export function useResumoTanques(forceRefresh = false) {
+export function useResumoTanques() {
+  const fetchFunction = useCallback(async () => {
+    const { fetchResumoTanques } = await import('../api/api');
+    return fetchResumoTanques(false);
+  }, []);
+
   return useCache({
     key: CACHE_KEYS.TANQUES_RESUMO,
-    fetchFunction: async () => {
-      const { fetchResumoTanques } = await import('../api/api');
-      return fetchResumoTanques(forceRefresh);
-    }
+    fetchFunction
   });
 }
 
-export function useAlojamentos(forceRefresh = false) {
+export function useAlojamentos() {
+  const fetchFunction = useCallback(async () => {
+    const { fetchAlojamentos } = await import('../api/api');
+    return fetchAlojamentos(false);
+  }, []);
+
   return useCache({
     key: CACHE_KEYS.ALOJAMENTOS,
-    fetchFunction: async () => {
-      const { fetchAlojamentos } = await import('../api/api');
-      return fetchAlojamentos(forceRefresh);
-    }
+    fetchFunction
   });
 }
 
-export function useBiometriasDiarias(forceRefresh = false) {
+export function useBiometriasDiarias() {
+  const fetchFunction = useCallback(async () => {
+    const { fetchBiometriasDiarias } = await import('../api/api');
+    return fetchBiometriasDiarias(false);
+  }, []);
+
   return useCache({
     key: CACHE_KEYS.BIOMETRIAS_DIARIAS,
-    fetchFunction: async () => {
-      const { fetchBiometriasDiarias } = await import('../api/api');
-      return fetchBiometriasDiarias(forceRefresh);
-    }
+    fetchFunction
   });
 }
 
-export function useBiometriasSemanais(forceRefresh = false) {
+export function useBiometriasSemanais() {
+  const fetchFunction = useCallback(async () => {
+    const { fetchBiometriasSemanais } = await import('../api/api');
+    return fetchBiometriasSemanais(false);
+  }, []);
+
   return useCache({
     key: CACHE_KEYS.BIOMETRIAS_SEMANAIS,
-    fetchFunction: async () => {
-      const { fetchBiometriasSemanais } = await import('../api/api');
-      return fetchBiometriasSemanais(forceRefresh);
-    }
+    fetchFunction
   });
 }
