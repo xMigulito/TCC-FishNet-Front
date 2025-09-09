@@ -36,10 +36,10 @@ export function useCache<T = any>({
     try {
       // Verificar cache primeiro (se não for refresh forçado)
       if (!forceRefresh) {
-        const cachedData = cache.get(createCacheConfig(key, ttl));
+        const cachedData = cache.get<T>(createCacheConfig(key, ttl));
         if (cachedData !== null && cachedData !== undefined) {
           console.log(`📦 Dados de ${key} carregados do cache`);
-          setData(cachedData);
+          setData(cachedData as T);
           setIsFromCache(true);
           setLoading(false);
           return;
