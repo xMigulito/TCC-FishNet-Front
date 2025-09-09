@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useHotJar } from '@/hooks/useHotJar';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -11,6 +12,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const router = useRouter();
   const { login } = useAuth();
+  const { trackEvent, trackConversion, identifyUser } = useHotJar();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,11 +23,39 @@ export default function Login() {
       const success = await login(email, password);
       
       if (success) {
+        // Rastrear login bem-sucedido
+        trackEvent('Login Success', {
+          email: email,
+          timestamp: new Date().toISOString()
+        });
+        
+        trackConversion('User Login', 1);
+        
+        // Identificar usuário no HotJar
+        identifyUser({
+          userEmail: email,
+          loginTime: new Date().toISOString()
+        });
+        
         router.push('/dashboard');
       } else {
+        // Rastrear falha no login
+        trackEvent('Login Failed', {
+          email: email,
+          reason: 'Invalid credentials',
+          timestamp: new Date().toISOString()
+        });
+        
         setError('Email ou senha inválidos');
       }
     } catch (error) {
+      // Rastrear erro no login
+      trackEvent('Login Error', {
+        email: email,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
+      
       setError('Erro ao fazer login. Tente novamente.');
     } finally {
       setIsLoading(false);

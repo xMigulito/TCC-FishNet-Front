@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { register } from '../../api/api';
+import { useHotJar } from '@/hooks/useHotJar';
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -15,6 +16,7 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const { trackEvent, trackConversion, trackPageView } = useHotJar();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,10 +42,29 @@ export default function RegisterPage() {
         formData.cooperativaId
       );
       
+      // Rastrear registro bem-sucedido
+      trackEvent('User Registration Success', {
+        email: formData.email,
+        usuario: formData.usuario,
+        cooperativaId: formData.cooperativaId,
+        timestamp: new Date().toISOString()
+      });
+      
+      trackConversion('User Registration', 1);
+      
       // Redirecionar para login após registro bem-sucedido
       router.push('/login?message=Registro realizado com sucesso! Faça login para continuar.');
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Erro ao registrar usuário');
+      const errorMessage = error.response?.data?.message || 'Erro ao registrar usuário';
+      setError(errorMessage);
+      
+      // Rastrear erro no registro
+      trackEvent('User Registration Error', {
+        email: formData.email,
+        usuario: formData.usuario,
+        error: errorMessage,
+        timestamp: new Date().toISOString()
+      });
     } finally {
       setIsLoading(false);
     }

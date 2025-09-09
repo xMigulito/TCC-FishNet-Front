@@ -12,6 +12,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { fetchDashBoardInfo } from '@/api/api';
+import { useHotJar } from '@/hooks/useHotJar';
 
 const chartColors = {
   biomassa: 'var(--primary)',
@@ -50,6 +51,7 @@ export default function Graficos() {
   const [tanqueSelecionado, setTanqueSelecionado] = useState<number | null>(null);
   const [dadosGraficos, setDadosGraficos] = useState<DadosGrafico[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { trackEvent, trackPageView } = useHotJar();
 
   useEffect(() => {
     async function loadData() {
@@ -69,13 +71,23 @@ export default function Graficos() {
       }
     }
     loadData();
-  }, []);
+    trackPageView('Gráficos');
+  }, [trackPageView]);
 
   const handleTanqueChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const novoTanque = Number(event.target.value);
     setTanqueSelecionado(novoTanque);
     const tanque = tanques.find(t => t.id === novoTanque);
     setDadosGraficos(tanque ? tanque.dados : []);
+    
+    // Rastrear mudança de tanque
+    if (tanque) {
+      trackEvent('Chart Tank Changed', {
+        tanqueId: novoTanque,
+        tanqueNome: tanque.nome,
+        timestamp: new Date().toISOString()
+      });
+    }
   };
 
   if (isLoading) {

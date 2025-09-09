@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { fetchAlojamentos } from "../api/api";
 import { API_ENDPOINTS } from "../config/api";
+import { useHotJar } from "@/hooks/useHotJar";
 
 interface BiometriaModalProps {
   isOpen: boolean;
@@ -38,6 +39,7 @@ export default function BiometriaModal({ isOpen, onClose, onSuccess, tanqueId }:
   });
   const [isLoading, setIsLoading] = useState(false);
   const [erro, setErro] = useState("");
+  const { trackEvent, trackConversion } = useHotJar();
 
   useEffect(() => {
     const loadAlojamentos = async () => {

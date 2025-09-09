@@ -3,6 +3,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { API_ENDPOINTS } from "../config/api";
+import { useHotJar } from "@/hooks/useHotJar";
 
 interface AlojamentoModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export default function AlojamentoModal({ isOpen, onClose, onSuccess, tanqueId }
   });
   const [isLoading, setIsLoading] = useState(false);
   const [erro, setErro] = useState("");
+  const { trackEvent, trackConversion } = useHotJar();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +39,18 @@ export default function AlojamentoModal({ isOpen, onClose, onSuccess, tanqueId }
         Cooperativa_Id: parseInt(formData.Cooperativa_Id),
       });
 
+      // Rastrear criação de alojamento
+      trackEvent('Tank Housing Created', {
+        tanqueId: tanqueId,
+        totalPeixes: parseInt(formData.Total_Peixes),
+        pesoMedioInicial: parseFloat(formData.Peso_Medio_Inicial),
+        biomassaInicial: parseInt(formData.Biomassa_Inicial),
+        dataAlojamento: formData.Data_Alojamento,
+        timestamp: new Date().toISOString()
+      });
+      
+      trackConversion('Tank Housing Created', 1);
+
       setFormData({
         Data_Alojamento: new Date().toISOString().split('T')[0],
         Total_Peixes: "",
@@ -48,6 +62,16 @@ export default function AlojamentoModal({ isOpen, onClose, onSuccess, tanqueId }
       onClose();
     } catch (error) {
       setErro("Erro ao cadastrar alojamento. Verifique os dados e tente novamente.");
+      
+      // Rastrear erro na criação
+      trackEvent('Tank Housing Creation Error', {
+        tanqueId: tanqueId,
+        totalPeixes: formData.Total_Peixes,
+        pesoMedioInicial: formData.Peso_Medio_Inicial,
+        biomassaInicial: formData.Biomassa_Inicial,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
     } finally {
       setIsLoading(false);
     }

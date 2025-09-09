@@ -6,6 +6,7 @@ import NovoTanqueModal from "@/components/NovoTanqueModal";
 import BiometriaModal from "@/components/BiometriaModal";
 import BiometriaSemanalModal from "@/components/BiometriaSemanalModal";
 import AlojamentoModal from "@/components/AlojamentoModal";
+import { useHotJar } from "@/hooks/useHotJar";
 
 interface TanqueResumo {
   id: number;
@@ -66,6 +67,7 @@ export default function Tanques() {
   const [isLoading, setIsLoading] = useState(true);
   const [erro, setErro] = useState("");
   const [showNovoTanqueModal, setShowNovoTanqueModal] = useState(false);
+  const { trackEvent, trackPageView } = useHotJar();
   const [showBiometriaModal, setShowBiometriaModal] = useState(false);
   const [showBiometriaSemanalModal, setShowBiometriaSemanalModal] = useState(false);
   const [showAlojamentoModal, setShowAlojamentoModal] = useState(false);
@@ -73,7 +75,8 @@ export default function Tanques() {
 
   useEffect(() => {
     loadTanques();
-  }, []);
+    trackPageView('Tanques');
+  }, [trackPageView]);
 
   async function loadTanques() {
     try {
@@ -90,9 +93,22 @@ export default function Tanques() {
     try {
       await desalojarTanque(alojamentoId);
       await loadTanques(); // Recarregar dados
+      
+      // Rastrear desalojamento
+      trackEvent('Tank Unhoused', {
+        alojamentoId: alojamentoId,
+        timestamp: new Date().toISOString()
+      });
     } catch (error) {
       console.error('Erro ao desalojar:', error);
       setErro("Erro ao desalojar tanque");
+      
+      // Rastrear erro no desalojamento
+      trackEvent('Tank Unhouse Error', {
+        alojamentoId: alojamentoId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
     }
   }
 
@@ -113,7 +129,13 @@ export default function Tanques() {
             <p className="text-lg text-primary mt-1">Visão geral da piscicultura e métricas importantes</p>
           </div>
           <button 
-            onClick={() => setShowNovoTanqueModal(true)}
+            onClick={() => {
+              trackEvent('New Tank Button Clicked', {
+                page: 'tanques',
+                timestamp: new Date().toISOString()
+              });
+              setShowNovoTanqueModal(true);
+            }}
             className="bg-secondary text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-secondary/80 transition-colors"
           >
             + Novo Tanque
@@ -201,6 +223,11 @@ export default function Tanques() {
                   {!tanque.alojado ? (
                     <button
                       onClick={() => {
+                        trackEvent('Tank House Button Clicked', {
+                          tanqueId: tanque.id,
+                          tanqueLocal: tanque.local,
+                          timestamp: new Date().toISOString()
+                        });
                         setSelectedTanqueId(tanque.id);
                         setShowAlojamentoModal(true);
                       }}
@@ -212,7 +239,11 @@ export default function Tanques() {
                     <>
                       <button
                         onClick={() => {
-                          console.log('Clicou em Biometria Diária para tanque:', tanque.id);
+                          trackEvent('Daily Biometry Button Clicked', {
+                            tanqueId: tanque.id,
+                            tanqueLocal: tanque.local,
+                            timestamp: new Date().toISOString()
+                          });
                           setSelectedTanqueId(tanque.id);
                           setShowBiometriaModal(true);
                         }}
@@ -222,7 +253,11 @@ export default function Tanques() {
                       </button>
                       <button
                         onClick={() => {
-                          console.log('Clicou em Biometria Semanal para tanque:', tanque.id);
+                          trackEvent('Weekly Biometry Button Clicked', {
+                            tanqueId: tanque.id,
+                            tanqueLocal: tanque.local,
+                            timestamp: new Date().toISOString()
+                          });
                           setSelectedTanqueId(tanque.id);
                           setShowBiometriaSemanalModal(true);
                         }}

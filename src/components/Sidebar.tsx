@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useState, useCallback } from 'react';
 import { ChevronDown, LogOut, LayoutDashboard, Settings, FileText, BarChart3, Database } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useHotJar } from '@/hooks/useHotJar';
 
 interface MenuItem {
   name: string;
@@ -22,6 +23,7 @@ export default function Sidebar({ isOpen, isMinimized, onToggleMinimize }: Sideb
   const pathname = usePathname();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { logout, user } = useAuth();
+  const { trackEvent } = useHotJar();
 
   const menuItems: MenuItem[] = [
     { name: 'Dashboard', path: '/dashboard', icon: <LayoutDashboard className="w-6 h-6" /> },
@@ -34,20 +36,30 @@ export default function Sidebar({ isOpen, isMinimized, onToggleMinimize }: Sideb
     { name: 'Configurações', path: '/configuracoes', icon: <Settings className="w-6 h-6" /> },
   ];
 
-  const handleNavigation = useCallback((path: string) => {
+  const handleNavigation = useCallback((path: string, name: string) => {
+    trackEvent('Sidebar Navigation', {
+      destination: path,
+      pageName: name,
+      timestamp: new Date().toISOString()
+    });
     router.push(path);
-  }, [router]);
+  }, [router, trackEvent]);
 
   const handleLogout = useCallback(() => {
+    trackEvent('User Logout', {
+      userId: user?.id,
+      userEmail: user?.email,
+      timestamp: new Date().toISOString()
+    });
     logout();
     router.push('/login');
-  }, [logout, router]);
+  }, [logout, router, trackEvent, user]);
 
   const MenuButton = ({ item }: { item: MenuItem }) => {
     const isActive = pathname === item.path;
     return (
       <button
-        onClick={() => handleNavigation(item.path)}
+        onClick={() => handleNavigation(item.path, item.name)}
         className={`
           group flex items-center w-full px-4 py-2.5 text-sm font-medium rounded-lg
           transition-all duration-150 ease-in-out

@@ -183,6 +183,11 @@ export default function Dashboard() {
     isFromCache 
   } = useDashboard();
 
+  // Rastrear visualização da página
+  useEffect(() => {
+    trackPageView('Dashboard');
+  }, [trackPageView]);
+
   if (isLoading) {
     return <PageLoading />;
   }
@@ -288,7 +293,13 @@ export default function Dashboard() {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={refresh}
+              onClick={() => {
+                trackEvent('Dashboard Refresh', { 
+                  fromCache: isFromCache,
+                  timestamp: new Date().toISOString()
+                });
+                refresh();
+              }}
               className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
             >
               🔄 Atualizar
@@ -298,7 +309,18 @@ export default function Dashboard() {
         
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6 mb-10">
           {metricas.map((m, i) => (
-            <div key={i} className="bg-white rounded-2xl p-6 border border-gray-200 flex flex-col items-center shadow-md hover:shadow-lg transition-shadow duration-300">
+            <div 
+              key={i} 
+              className="bg-white rounded-2xl p-6 border border-gray-200 flex flex-col items-center shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer"
+              onClick={() => {
+                trackEvent('Dashboard Metric Clicked', {
+                  metricName: m.titulo,
+                  metricValue: m.valor,
+                  metricVariation: m.variacao,
+                  timestamp: new Date().toISOString()
+                });
+              }}
+            >
               <span className="text-sm text-primary font-semibold mb-1 text-center">{m.titulo}</span>
               <span className="text-2xl font-bold text-primary mb-2 text-center">{m.valor}</span>
               <span className={`text-xs font-semibold ${m.cor} text-center`}>{m.variacao}</span>

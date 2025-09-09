@@ -3,6 +3,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { API_ENDPOINTS } from "../config/api";
+import { useHotJar } from "@/hooks/useHotJar";
 
 interface NovoTanqueModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export default function NovoTanqueModal({ isOpen, onClose, onSuccess }: NovoTanq
   });
   const [isLoading, setIsLoading] = useState(false);
   const [erro, setErro] = useState("");
+  const { trackEvent, trackConversion } = useHotJar();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,11 +33,30 @@ export default function NovoTanqueModal({ isOpen, onClose, onSuccess }: NovoTanq
         Comprimento: parseFloat(formData.Comprimento),
       });
 
+      // Rastrear criação de tanque
+      trackEvent('Tank Created', {
+        local: formData.Local,
+        largura: parseFloat(formData.Largura),
+        comprimento: parseFloat(formData.Comprimento),
+        timestamp: new Date().toISOString()
+      });
+      
+      trackConversion('Tank Created', 1);
+
       setFormData({ Local: "", Largura: "", Comprimento: "" });
       onSuccess();
       onClose();
     } catch (error) {
       setErro("Erro ao cadastrar tanque. Verifique os dados e tente novamente.");
+      
+      // Rastrear erro na criação
+      trackEvent('Tank Creation Error', {
+        local: formData.Local,
+        largura: formData.Largura,
+        comprimento: formData.Comprimento,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
     } finally {
       setIsLoading(false);
     }
