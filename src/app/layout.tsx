@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar';
 import Sidebar from '@/components/Sidebar';
 import HotJar from '@/components/HotJar';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import { useResponsive } from '@/hooks/useResponsive';
 import './globals.css';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -17,6 +18,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated, isLoading } = useAuth();
+  const { isMobile } = useResponsive();
 
   // Não mostrar sidebar e navbar na página de login
   const isLoginPage = pathname === '/login';
@@ -27,6 +29,17 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
       router.push('/login');
     }
   }, [isLoading, isAuthenticated, isLoginPage, router]);
+
+  // Ajustar sidebar para mobile
+  useEffect(() => {
+    if (isMobile) {
+      setIsSidebarOpen(false);
+      setIsSidebarMinimized(false);
+    } else {
+      setIsSidebarOpen(true);
+      setIsSidebarMinimized(true);
+    }
+  }, [isMobile]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -94,9 +107,9 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
             onToggleMinimize={toggleMinimize}
           />
         <div className={`
-          flex-1 flex flex-col min-w-0
+          flex-1 flex flex-col min-w-0 main-content
           transition-all duration-300 ease-in-out
-          ${isSidebarMinimized ? 'md:ml-14 sm:md:ml-16 lg:ml-20' : 'md:ml-72 sm:md:ml-64'}
+          ${isSidebarMinimized ? 'sidebar-minimized md:ml-12 sm:md:ml-14 lg:ml-16 xl:ml-20' : 'sidebar-open md:ml-80 sm:md:ml-72 lg:ml-64'}
         `}>
             <Navbar 
               toggleSidebar={toggleSidebar} 

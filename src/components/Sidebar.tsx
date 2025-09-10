@@ -125,7 +125,7 @@ export default function Sidebar({ isOpen, isMinimized, onToggleMinimize }: Sideb
       fixed top-0 left-0 z-20 h-full sidebar
       transform transition-all duration-300 ease-in-out
       ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-      ${isMinimized ? 'w-14 sm:w-16 md:w-20' : 'w-72 sm:w-64'}
+      ${isMinimized ? 'minimized w-12 sm:w-14 md:w-16 lg:w-20' : 'w-80 sm:w-72 md:w-64'}
       md:translate-x-0
     `}>
       <div className="flex flex-col h-full p-2 sm:p-4">

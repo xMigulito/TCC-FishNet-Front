@@ -121,3 +121,43 @@ body {
   color: var(--verde-petroleo);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Responsividade específica para mobile */
+@media (max-width: 640px) {
+  .sidebar {
+    width: 12rem !important; /* 192px */
+  }
+  
+  .sidebar.minimized {
+    width: 3rem !important; /* 48px */
+  }
+  
+  .main-content {
+    margin-left: 0 !important;
+  }
+  
+  .main-content.sidebar-open {
+    margin-left: 12rem !important; /* 192px */
+  }
+  
+  .main-content.sidebar-minimized {
+    margin-left: 3rem !important; /* 48px */
+  }
+  
+  .navbar {
+    height: 3.5rem !important; /* 56px */
+  }
+  
+  .modal-mobile {
+    padding: 0.75rem !important;
+    margin: 0.5rem !important;
+  }
+  
+  .text-mobile {
+    font-size: 0.875rem !important; /* 14px */
+  }
+  
+  .text-mobile-sm {
+    font-size: 0.75rem !important; /* 12px */
+  }
+}
