@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { fetchAlojamentos } from "../api/api";
 import { API_ENDPOINTS } from "../config/api";
+import MultiPesoInput from "./MultiPesoInput";
 
 interface BiometriaSemanalModalProps {
   isOpen: boolean;
@@ -27,13 +28,14 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
     Data_Alojamento: new Date().toISOString().split('T')[0],
     Peixes_Mortos: "",
     Peixes_Capturados: "",
-    Peso: "",
+    Peso: 0, // Será calculado automaticamente
     Biomassa_Total: "",
     Data_Abertura: new Date().toISOString().split('T')[0],
     Data_Fechamento: new Date().toISOString().split('T')[0],
   });
   const [isLoading, setIsLoading] = useState(false);
   const [erro, setErro] = useState("");
+  const [totalPeixesCapturados, setTotalPeixesCapturados] = useState(0);
 
   useEffect(() => {
     const loadAlojamentos = async () => {
@@ -55,6 +57,16 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
       loadAlojamentos();
     }
   }, [isOpen, tanqueId]);
+
+  // Função para receber os dados calculados do MultiPesoInput
+  const handlePesoCalculado = (pesoMedio: number, totalPeixes: number) => {
+    setFormData(prev => ({
+      ...prev,
+      Peso: pesoMedio,
+      Peixes_Capturados: totalPeixes.toString()
+    }));
+    setTotalPeixesCapturados(totalPeixes);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,11 +94,12 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
         Data_Alojamento: new Date().toISOString().split('T')[0],
         Peixes_Mortos: "",
         Peixes_Capturados: "",
-        Peso: "",
+        Peso: 0,
         Biomassa_Total: "",
         Data_Abertura: new Date().toISOString().split('T')[0],
         Data_Fechamento: new Date().toISOString().split('T')[0],
       });
+      setTotalPeixesCapturados(0);
       onSuccess();
       onClose();
     } catch (error) {
@@ -158,33 +171,25 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Peixes Capturados
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={formData.Peixes_Capturados}
-              onChange={(e) => setFormData({ ...formData, Peixes_Capturados: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
-              required
-            />
-          </div>
+          {/* Componente para múltiplas medições de peso */}
+          <MultiPesoInput onPesoCalculado={handlePesoCalculado} />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Peso (g)
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              value={formData.Peso}
-              onChange={(e) => setFormData({ ...formData, Peso: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
-              required
-            />
-          </div>
+          {/* Resumo dos valores calculados */}
+          {formData.Peso > 0 && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <h4 className="font-semibold text-green-800 mb-2">Valores Calculados</h4>
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-green-700 font-medium">Total de Peixes Capturados:</span>
+                  <span className="ml-2 text-green-900">{totalPeixesCapturados.toFixed(2)}</span>
+                </div>
+                <div>
+                  <span className="text-green-700 font-medium">Peso Médio:</span>
+                  <span className="ml-2 text-green-900">{formData.Peso.toFixed(2)} g</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">

@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { useState, useCallback } from 'react';
-import { ChevronDown, LogOut, LayoutDashboard, Settings, FileText, BarChart3, Database } from 'lucide-react';
+import { ChevronDown, LogOut, LayoutDashboard, Settings, FileText, BarChart3, Database, Menu } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useHotJar } from '@/hooks/useHotJar';
 
@@ -132,15 +132,12 @@ export default function Sidebar({ isOpen, isMinimized, onToggleMinimize }: Sideb
         <header className="flex-shrink-0 px-2 py-4 border-b border-white/10">
           <button
             onClick={onToggleMinimize}
-            className="w-full flex items-center justify-center"
+            className="w-full flex items-center justify-center hover:bg-white/10 rounded-lg p-2 transition-colors"
           >
             {!isMinimized ? (
               <h1 className="text-2xl font-bold text-white">FishNet</h1>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="30" height="30" viewBox="0,0,256,256">
-                <g fill="#ffffff"><g transform="scale(5.12,5.12)"><path d="M 0 7.5 L 0 12.5 L 50 12.5 L 50 7.5 Z M 0 22.5 L 0 27.5 L 50 27.5 L 50 22.5 Z M 0 37.5 L 0 42.5 L 50 42.5 L 50 37.5 Z"></path></g></g>
-              </svg>
-              
+              <Menu className="w-6 h-6 text-white" />
             )}
           </button>
         </header>
