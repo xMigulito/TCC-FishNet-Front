@@ -96,7 +96,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
         <div className={`
           flex-1 flex flex-col min-w-0
           transition-all duration-300 ease-in-out
-          ${isSidebarMinimized ? 'md:ml-16 sm:md:ml-20' : 'md:ml-64'}
+          ${isSidebarMinimized ? 'md:ml-14 sm:md:ml-16 lg:ml-20' : 'md:ml-72 sm:md:ml-64'}
         `}>
             <Navbar 
               toggleSidebar={toggleSidebar} 
@@ -104,7 +104,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
               isSidebarMinimized={isSidebarMinimized}
             />
             <main className="flex-1 overflow-auto">
-              <div className="h-full p-3 sm:p-4 md:p-8">
+              <div className="h-full p-2 sm:p-3 md:p-4 lg:p-8">
                 {children}
               </div>
             </main>

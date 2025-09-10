@@ -61,7 +61,7 @@ export default function Sidebar({ isOpen, isMinimized, onToggleMinimize }: Sideb
       <button
         onClick={() => handleNavigation(item.path, item.name)}
         className={`
-          group flex items-center w-full px-4 py-2.5 text-sm font-medium rounded-lg
+          group flex items-center w-full px-2 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg
           transition-all duration-150 ease-in-out
           ${isActive ? 'sidebar-item-active' : 'sidebar-text sidebar-item-hover'}
           ${isMinimized ? 'justify-center' : ''}
@@ -69,7 +69,7 @@ export default function Sidebar({ isOpen, isMinimized, onToggleMinimize }: Sideb
         title={isMinimized ? item.name : ''}
       >
         <div className={`
-          ${!isMinimized && 'mr-3'} transition-colors duration-150
+          ${!isMinimized && 'mr-2 sm:mr-3'} transition-colors duration-150
           ${isActive ? 'text-white' : 'sidebar-text'}
         `}>
           {item.icon}
@@ -125,24 +125,24 @@ export default function Sidebar({ isOpen, isMinimized, onToggleMinimize }: Sideb
       fixed top-0 left-0 z-20 h-full sidebar
       transform transition-all duration-300 ease-in-out
       ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-      ${isMinimized ? 'w-16 sm:w-20' : 'w-64 sm:w-64'}
+      ${isMinimized ? 'w-14 sm:w-16 md:w-20' : 'w-72 sm:w-64'}
       md:translate-x-0
     `}>
-      <div className="flex flex-col h-full p-4">
-        <header className="flex-shrink-0 px-2 py-4 border-b border-white/10">
+      <div className="flex flex-col h-full p-2 sm:p-4">
+        <header className="flex-shrink-0 px-1 sm:px-2 py-3 sm:py-4 border-b border-white/10">
           <button
             onClick={onToggleMinimize}
             className="w-full flex items-center justify-center hover:bg-white/10 rounded-lg p-2 transition-colors"
           >
             {!isMinimized ? (
-              <h1 className="text-2xl font-bold text-white">FishNet</h1>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-white">FishNet</h1>
             ) : (
-              <Menu className="w-6 h-6 text-white" />
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             )}
           </button>
         </header>
 
-        <nav className="flex-1 mt-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 mt-2 sm:mt-4 space-y-1 overflow-y-auto">
           {menuItems.map((item) => (
             <MenuButton key={item.path} item={item} />
           ))}
