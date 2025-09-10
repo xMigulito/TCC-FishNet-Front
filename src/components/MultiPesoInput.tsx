@@ -111,12 +111,12 @@ export default function MultiPesoInput({ onPesoCalculado, initialMedicoes = [] }
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <h3 className="text-lg font-semibold text-primary">Medições de Peso</h3>
         <button
           type="button"
           onClick={adicionarMedicao}
-          className="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm"
+          className="px-3 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 text-sm font-medium w-full sm:w-auto"
         >
           + Adicionar Medição
         </button>
@@ -140,7 +140,7 @@ export default function MultiPesoInput({ onPesoCalculado, initialMedicoes = [] }
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Descrição
@@ -191,7 +191,7 @@ export default function MultiPesoInput({ onPesoCalculado, initialMedicoes = [] }
       {/* Resumo dos cálculos */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h4 className="font-semibold text-blue-800 mb-2">Resumo dos Cálculos</h4>
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
           <div>
             <span className="text-blue-700 font-medium">Total de Peixes:</span>
             <span className="ml-2 text-blue-900">{totalPeixes.toFixed(2)}</span>

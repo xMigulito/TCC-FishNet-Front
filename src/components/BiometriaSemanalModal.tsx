@@ -84,7 +84,7 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
         Data_Alojamento: new Date(formData.Data_Alojamento),
         Peixes_Mortos: parseInt(formData.Peixes_Mortos),
         Peixes_Capturados: parseFloat(formData.Peixes_Capturados),
-        Peso: parseFloat(formData.Peso),
+        Peso: formData.Peso,
         Biomassa_Total: parseInt(formData.Biomassa_Total),
         Data_Abertura: new Date(formData.Data_Abertura),
         Data_Fechamento: new Date(formData.Data_Fechamento),
@@ -112,8 +112,8 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold text-primary">Nova Biometria Semanal</h2>
           <button
@@ -178,7 +178,7 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
           {formData.Peso > 0 && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <h4 className="font-semibold text-green-800 mb-2">Valores Calculados</h4>
-              <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div>
                   <span className="text-green-700 font-medium">Total de Peixes Capturados:</span>
                   <span className="ml-2 text-green-900">{totalPeixesCapturados.toFixed(2)}</span>
