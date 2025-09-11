@@ -182,7 +182,7 @@ export default function Graficos() {
                 <div className="mt-2 text-sm text-blue-700">
                   <p>
                     Os gráficos estão sendo exibidos vazios porque não há tanques cadastrados no sistema. 
-                    Para visualizar dados reais, cadastre tanques na seção "Tanques" e adicione dados de biometria.
+                    Para visualizar dados reais, cadastre tanques na seção &quot;Tanques&quot; e adicione dados de biometria.
                   </p>
                 </div>
               </div>
