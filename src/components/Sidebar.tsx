@@ -124,7 +124,7 @@ export default function Sidebar({ isOpen, isMinimized, onToggleMinimize }: Sideb
     <aside className={`
       fixed top-0 left-0 z-20 h-full sidebar
       transform transition-all duration-300 ease-in-out
-      ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+      ${isOpen ? 'translate-x-0 open' : '-translate-x-full'}
       ${isMinimized ? 'minimized w-12 sm:w-14 md:w-16 lg:w-20' : 'w-80 sm:w-72 md:w-64'}
       md:translate-x-0
     `}>

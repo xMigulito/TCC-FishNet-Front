@@ -17,6 +17,7 @@ export default function Navbar({ toggleSidebar, isSidebarOpen, isSidebarMinimize
         flex justify-between items-center h-14 sm:h-16
         transition-all duration-300 ease-in-out
         ${isSidebarOpen && !isSidebarMinimized ? 'pl-80 sm:pl-72 md:pl-64' : isSidebarMinimized ? 'pl-12 sm:pl-14 md:pl-16 lg:pl-20' : 'pl-0'}
+        ${!isSidebarOpen ? 'pl-0' : ''}
         md:pl-0
       `}>
         <div className="flex items-center pl-2 sm:pl-4">

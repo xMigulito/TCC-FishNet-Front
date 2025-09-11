@@ -30,7 +30,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     }
   }, [isLoading, isAuthenticated, isLoginPage, router]);
 
-  // Ajustar sidebar para mobile
+  // Ajustar sidebar para mobile - fechada por padrão
   useEffect(() => {
     if (isMobile) {
       setIsSidebarOpen(false);
@@ -106,6 +106,14 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
             isMinimized={isSidebarMinimized}
             onToggleMinimize={toggleMinimize}
           />
+          
+          {/* Overlay para mobile quando sidebar estiver aberta */}
+          {isMobile && isSidebarOpen && (
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden"
+              onClick={toggleSidebar}
+            />
+          )}
         <div className={`
           flex-1 flex flex-col min-w-0 main-content
           transition-all duration-300 ease-in-out

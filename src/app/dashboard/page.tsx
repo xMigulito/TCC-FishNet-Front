@@ -17,6 +17,7 @@ import PageLoading from '@/components/PageLoading';
 import { useHotJar } from '@/hooks/useHotJar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDashboard } from '@/hooks/useCache';
+import { useResponsive } from '@/hooks/useResponsive';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Users, Fish, Thermometer, Droplets, Zap, Eye } from 'lucide-react';
 

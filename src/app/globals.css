@@ -126,6 +126,11 @@ body {
 @media (max-width: 640px) {
   .sidebar {
     width: 12rem !important; /* 192px */
+    transform: translateX(-100%) !important; /* Fechada por padrão */
+  }
+  
+  .sidebar.open {
+    transform: translateX(0) !important; /* Aberta quando necessário */
   }
   
   .sidebar.minimized {
@@ -133,19 +138,21 @@ body {
   }
   
   .main-content {
-    margin-left: 0 !important;
+    margin-left: 0 !important; /* Sempre ocupa toda a largura no mobile */
+    width: 100% !important;
   }
   
   .main-content.sidebar-open {
-    margin-left: 12rem !important; /* 192px */
+    margin-left: 0 !important; /* Não se move no mobile */
   }
   
   .main-content.sidebar-minimized {
-    margin-left: 3rem !important; /* 48px */
+    margin-left: 0 !important; /* Não se move no mobile */
   }
   
   .navbar {
     height: 3.5rem !important; /* 56px */
+    margin-left: 0 !important; /* Sempre alinhado à esquerda */
   }
   
   .modal-mobile {
@@ -159,5 +166,43 @@ body {
   
   .text-mobile-sm {
     font-size: 0.75rem !important; /* 12px */
+  }
+}
+
+/* Responsividade para tablet */
+@media (min-width: 641px) and (max-width: 768px) {
+  .sidebar {
+    width: 18rem !important; /* 288px */
+  }
+  
+  .sidebar.minimized {
+    width: 3.5rem !important; /* 56px */
+  }
+  
+  .main-content.sidebar-open {
+    margin-left: 18rem !important; /* 288px */
+  }
+  
+  .main-content.sidebar-minimized {
+    margin-left: 3.5rem !important; /* 56px */
+  }
+}
+
+/* Responsividade para desktop */
+@media (min-width: 769px) {
+  .sidebar {
+    width: 16rem !important; /* 256px */
+  }
+  
+  .sidebar.minimized {
+    width: 5rem !important; /* 80px */
+  }
+  
+  .main-content.sidebar-open {
+    margin-left: 16rem !important; /* 256px */
+  }
+  
+  .main-content.sidebar-minimized {
+    margin-left: 5rem !important; /* 80px */
   }
 }
