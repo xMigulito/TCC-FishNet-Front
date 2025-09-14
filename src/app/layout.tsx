@@ -34,19 +34,28 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isMobile) {
       setIsSidebarOpen(false);
-      setIsSidebarMinimized(false);
+      setIsSidebarMinimized(false); // No mobile, sempre maximizada quando aberta
     } else {
       setIsSidebarOpen(true);
-      setIsSidebarMinimized(true);
+      setIsSidebarMinimized(true); // No desktop, começa minimizada
     }
   }, [isMobile]);
 
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+    if (isMobile) {
+      // No mobile, sempre maximizada quando aberta
+      setIsSidebarOpen(!isSidebarOpen);
+      setIsSidebarMinimized(false);
+    } else {
+      setIsSidebarOpen(!isSidebarOpen);
+    }
   };
 
   const toggleMinimize = () => {
-    setIsSidebarMinimized(!isSidebarMinimized);
+    // No mobile, não permitir minimização - sempre maximizada quando aberta
+    if (!isMobile) {
+      setIsSidebarMinimized(!isSidebarMinimized);
+    }
   };
 
   // Se for página de login, renderizar apenas o conteúdo
@@ -123,6 +132,7 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
               toggleSidebar={toggleSidebar} 
               isSidebarOpen={isSidebarOpen}
               isSidebarMinimized={isSidebarMinimized}
+              isMobile={isMobile}
             />
             <main className="flex-1 overflow-auto">
               <div className="h-full p-2 sm:p-3 md:p-4 lg:p-8">
