@@ -141,22 +141,49 @@ function calcularMetricas(data: Tanque[]): Metrica[] {
 }
 
 function processarEvolucaoPeso(data: Tanque[]) {
-  return data.map((d: Tanque) => ({
-    data: d.dados[d.dados.length - 1].mes,
-    atual: d.dados[d.dados.length - 1].biomassa,
-    ideal: d.dados[d.dados.length - 1].projecao,
-  }));
+  if (!data || !Array.isArray(data)) {
+    console.warn('processarEvolucaoPeso: dados inválidos', data);
+    return [];
+  }
+  
+  return data
+    .filter((d: Tanque) => d && d.dados && Array.isArray(d.dados) && d.dados.length > 0)
+    .map((d: Tanque) => {
+      const ultimoDado = d.dados[d.dados.length - 1];
+      if (!ultimoDado) {
+        console.warn('processarEvolucaoPeso: último dado inválido para tanque', d.nome);
+        return null;
+      }
+      return {
+        data: ultimoDado?.mes || 'N/A',
+        atual: ultimoDado?.biomassa || 0,
+        ideal: ultimoDado?.projecao || 0,
+      };
+    })
+    .filter(item => item !== null);
 }
 
 function processarRacaoPorTanque(data: Tanque[]) {
-  return data.map((tanque: Tanque) => {
-    const ultimoDado = tanque.dados[tanque.dados.length - 1];
-    return {
-      tanque: tanque.nome,
-      usada: Number((ultimoDado.biomassa * ultimoDado.fca).toFixed(2)),
-      projetada: Number((ultimoDado.projecao * ultimoDado.fca).toFixed(2)),
-    };
-  });
+  if (!data || !Array.isArray(data)) {
+    console.warn('processarRacaoPorTanque: dados inválidos', data);
+    return [];
+  }
+  
+  return data
+    .filter((tanque: Tanque) => tanque && tanque.dados && Array.isArray(tanque.dados) && tanque.dados.length > 0)
+    .map((tanque: Tanque) => {
+      const ultimoDado = tanque.dados[tanque.dados.length - 1];
+      if (!ultimoDado) {
+        console.warn('processarRacaoPorTanque: último dado inválido para tanque', tanque.nome);
+        return null;
+      }
+      return {
+        tanque: tanque.nome || 'Tanque Desconhecido',
+        usada: Number(((ultimoDado?.biomassa || 0) * (ultimoDado?.fca || 0)).toFixed(2)),
+        projetada: Number(((ultimoDado?.projecao || 0) * (ultimoDado?.fca || 0)).toFixed(2)),
+      };
+    })
+    .filter(item => item !== null);
 }
 
 // Função para formatar datas para mês/ano
@@ -275,6 +302,28 @@ export default function Dashboard() {
             </h2>
             <p className="text-gray-600">
               Não há dados para exibir no dashboard. Adicione tanques e dados para começar.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Validar dados antes de processar
+  if (!dashboardData || !Array.isArray(dashboardData)) {
+    console.error('Dashboard: dados inválidos recebidos', dashboardData);
+    return (
+      <div className="p-8 min-h-screen bg-page">
+        <div className="max-w-7xl mx-auto">
+          <h1 className="text-5xl font-extrabold text-primary mb-2">Dashboard</h1>
+          <p className="text-lg text-primary mb-8">Visão geral da piscicultura e métricas importantes</p>
+          
+          <div className="bg-white rounded-2xl p-8 border border-gray-200 shadow-md text-center">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Dados Inválidos
+            </h2>
+            <p className="text-gray-600">
+              Os dados recebidos não estão no formato esperado. Tente atualizar a página.
             </p>
           </div>
         </div>
