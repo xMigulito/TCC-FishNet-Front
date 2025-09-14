@@ -80,9 +80,16 @@ export default function Tanques() {
 
   async function loadTanques() {
     try {
+      console.log('🔄 Carregando tanques...');
       const data = await fetchResumoTanques();
+      console.log('📊 Dados recebidos da API:', data);
+      console.log('📊 Tipo dos dados:', typeof data);
+      console.log('📊 É array?', Array.isArray(data));
+      console.log('📊 Quantidade de tanques:', Array.isArray(data) ? data.length : 'N/A');
+      
       setTanques(Array.isArray(data) ? data : []);
-    } catch {
+    } catch (error) {
+      console.error('❌ Erro ao carregar tanques:', error);
       setErro("Erro ao carregar tanques");
     } finally {
       setIsLoading(false);
@@ -213,7 +220,7 @@ export default function Tanques() {
                   <span className={`px-2 py-1 rounded text-xs font-semibold ${statusMortes.cor}`}>{statusMortes.texto}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="flex items-center gap-1">⚖️ Peso médio: <span className="font-bold">{pesoMedio ? `${pesoMedio}g` : '-'}</span></span>
+                  <span className="flex items-center gap-1">⚖️ Peso médio: <span className="font-bold">{pesoMedio ? `${Number(pesoMedio).toFixed(1)}g` : '-'}</span></span>
                   <span className={`px-2 py-1 rounded text-xs font-semibold ${statusPeso.cor}`}>{statusPeso.texto}</span>
                 </div>
                 <div className="text-xs text-gray-500 mt-2">

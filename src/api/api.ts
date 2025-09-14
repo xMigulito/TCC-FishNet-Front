@@ -2,6 +2,7 @@ import axios from 'axios';
 import { cache, createCacheConfig, CACHE_KEYS } from '../utils/cache';
 
 const API_BASE_URL = 'https://fishnet-api-production.up.railway.app';
+// const API_BASE_URL = 'http://localhost:3001';
 const EXTERNAL_API_URL = `${API_BASE_URL}/dashboard`;
 const TANQUES_API_URL = `${API_BASE_URL}/tanque`;
 const TANQUES_RESUMO_API_URL = `${API_BASE_URL}/tanque/resumo`;
@@ -73,13 +74,12 @@ export async function login(email: string, password: string) {
     }
 }
 
-export async function register(email: string, usuario: string, password: string, cooperativaId: number) {
+export async function register(email: string, usuario: string, password: string) {
     try {
         const response = await axios.post(`${AUTH_API_URL}/register`, {
             email,
             usuario,
             password,
-            cooperativaId,
         });
         return response.data;
     } catch (error) {
@@ -170,14 +170,25 @@ export async function fetchResumoTanques(forceRefresh: boolean = false) {
         }
 
         console.log('🌐 Buscando resumo dos tanques da API...');
+        console.log('🔗 URL da API:', TANQUES_RESUMO_API_URL);
+        console.log('🔑 Token de autenticação:', getAuthToken() ? 'Presente' : 'Ausente');
+        
         const response = await axios.get(TANQUES_RESUMO_API_URL);
+        
+        console.log('✅ Resposta da API recebida:');
+        console.log('📊 Status:', response.status);
+        console.log('📊 Dados:', response.data);
+        console.log('📊 Tipo dos dados:', typeof response.data);
+        console.log('📊 É array?', Array.isArray(response.data));
         
         // Salvar no cache
         cache.set(createCacheConfig(CACHE_KEYS.TANQUES_RESUMO), response.data);
         
         return response.data;
     } catch (error) {
-        console.error('Erro ao buscar resumo dos tanques:', error);
+        console.error('❌ Erro ao buscar resumo dos tanques:', error);
+        console.error('❌ Detalhes do erro:', (error as any).response?.data);
+        console.error('❌ Status do erro:', (error as any).response?.status);
         throw error;
     }
 }

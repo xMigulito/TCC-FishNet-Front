@@ -11,7 +11,6 @@ export default function RegisterPage() {
     usuario: '',
     password: '',
     confirmPassword: '',
-    cooperativaId: 1, // Por enquanto fixo, depois pode ser um select
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -38,15 +37,13 @@ export default function RegisterPage() {
       await register(
         formData.email,
         formData.usuario,
-        formData.password,
-        formData.cooperativaId
+        formData.password
       );
       
       // Rastrear registro bem-sucedido
       trackEvent('User Registration Success', {
         email: formData.email,
         usuario: formData.usuario,
-        cooperativaId: formData.cooperativaId,
         timestamp: new Date().toISOString()
       });
       

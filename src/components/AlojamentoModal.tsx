@@ -4,6 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 import { API_ENDPOINTS } from "../config/api";
 import { useHotJar } from "@/hooks/useHotJar";
+import { cache } from "../utils/cache";
 
 interface AlojamentoModalProps {
   isOpen: boolean;
@@ -18,7 +19,6 @@ export default function AlojamentoModal({ isOpen, onClose, onSuccess, tanqueId }
     Total_Peixes: "",
     Peso_Medio_Inicial: "",
     Biomassa_Inicial: "",
-    Cooperativa_Id: "1", // Valor padrão
   });
   const [isLoading, setIsLoading] = useState(false);
   const [erro, setErro] = useState("");
@@ -36,8 +36,12 @@ export default function AlojamentoModal({ isOpen, onClose, onSuccess, tanqueId }
         Total_Peixes: parseInt(formData.Total_Peixes),
         Peso_Medio_Inicial: parseFloat(formData.Peso_Medio_Inicial),
         Biomassa_Inicial: parseInt(formData.Biomassa_Inicial),
-        Cooperativa_Id: parseInt(formData.Cooperativa_Id),
       });
+
+      // Limpar cache relacionado a alojamentos e tanques
+      cache.invalidateOnInsert('alojamento');
+      cache.invalidateOnInsert('tanque');
+      console.log('🗑️ Cache de alojamentos e tanques limpo após cadastro');
 
       // Rastrear criação de alojamento
       trackEvent('Tank Housing Created', {
@@ -56,7 +60,6 @@ export default function AlojamentoModal({ isOpen, onClose, onSuccess, tanqueId }
         Total_Peixes: "",
         Peso_Medio_Inicial: "",
         Biomassa_Inicial: "",
-        Cooperativa_Id: "1",
       });
       onSuccess();
       onClose();
@@ -146,18 +149,6 @@ export default function AlojamentoModal({ isOpen, onClose, onSuccess, tanqueId }
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Cooperativa ID
-            </label>
-            <input
-              type="number"
-              value={formData.Cooperativa_Id}
-              onChange={(e) => setFormData({ ...formData, Cooperativa_Id: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
-              required
-            />
-          </div>
 
           {erro && (
             <div className="text-red-600 text-sm">{erro}</div>

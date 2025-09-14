@@ -4,6 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 import { API_ENDPOINTS } from "../config/api";
 import { useHotJar } from "@/hooks/useHotJar";
+import { cache, CACHE_KEYS } from "../utils/cache";
 
 interface NovoTanqueModalProps {
   isOpen: boolean;
@@ -32,6 +33,10 @@ export default function NovoTanqueModal({ isOpen, onClose, onSuccess }: NovoTanq
         Largura: parseFloat(formData.Largura),
         Comprimento: parseFloat(formData.Comprimento),
       });
+
+      // Limpar cache relacionado a tanques
+      cache.invalidateOnInsert('tanque');
+      console.log('🗑️ Cache de tanques limpo após cadastro');
 
       // Rastrear criação de tanque
       trackEvent('Tank Created', {

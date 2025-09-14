@@ -5,6 +5,7 @@ import axios from "axios";
 import { fetchAlojamentos } from "../api/api";
 import { API_ENDPOINTS } from "../config/api";
 import MultiPesoInput from "./MultiPesoInput";
+import { cache } from "../utils/cache";
 
 interface BiometriaSemanalModalProps {
   isOpen: boolean;
@@ -30,9 +31,8 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
     Peixes_Capturados: "",
     Peso: 0, // Será calculado automaticamente
     Biomassa_Total: "",
-    Data_Abertura: new Date().toISOString().split('T')[0],
-    Data_Fechamento: new Date().toISOString().split('T')[0],
   });
+  const [dataAbertura, setDataAbertura] = useState<Date | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [erro, setErro] = useState("");
   const [totalPeixesCapturados, setTotalPeixesCapturados] = useState(0);
@@ -54,6 +54,8 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
     };
 
     if (isOpen && tanqueId) {
+      // Definir data de abertura quando o modal abrir
+      setDataAbertura(new Date());
       loadAlojamentos();
     }
   }, [isOpen, tanqueId]);
@@ -79,6 +81,8 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
     setErro("");
 
     try {
+      const dataFechamento = new Date(); // Data atual como fechamento
+      
       await axios.post(API_ENDPOINTS.BIOMETRIAS_SEMANAIS, {
         Tanque_Alojamento_Id: selectedAlojamento,
         Data_Alojamento: new Date(formData.Data_Alojamento),
@@ -86,9 +90,14 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
         Peixes_Capturados: parseFloat(formData.Peixes_Capturados),
         Peso: formData.Peso,
         Biomassa_Total: parseInt(formData.Biomassa_Total),
-        Data_Abertura: new Date(formData.Data_Abertura),
-        Data_Fechamento: new Date(formData.Data_Fechamento),
+        Data_Abertura: dataAbertura || new Date(),
+        Data_Fechamento: dataFechamento,
       });
+
+      // Limpar cache relacionado a biometrias e tanques
+      cache.invalidateOnInsert('biometria');
+      cache.invalidateOnInsert('tanque');
+      console.log('🗑️ Cache de biometrias e tanques limpo após inserção semanal');
 
       setFormData({
         Data_Alojamento: new Date().toISOString().split('T')[0],
@@ -96,10 +105,9 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
         Peixes_Capturados: "",
         Peso: 0,
         Biomassa_Total: "",
-        Data_Abertura: new Date().toISOString().split('T')[0],
-        Data_Fechamento: new Date().toISOString().split('T')[0],
       });
       setTotalPeixesCapturados(0);
+      setDataAbertura(null);
       onSuccess();
       onClose();
     } catch (error) {
@@ -204,31 +212,6 @@ export default function BiometriaSemanalModal({ isOpen, onClose, onSuccess, tanq
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Data de Abertura
-            </label>
-            <input
-              type="date"
-              value={formData.Data_Abertura}
-              onChange={(e) => setFormData({ ...formData, Data_Abertura: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Data de Fechamento
-            </label>
-            <input
-              type="date"
-              value={formData.Data_Fechamento}
-              onChange={(e) => setFormData({ ...formData, Data_Fechamento: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-secondary"
-              required
-            />
-          </div>
 
           {erro && (
             <div className="text-red-600 text-sm">{erro}</div>

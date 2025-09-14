@@ -5,6 +5,7 @@ import axios from "axios";
 import { fetchAlojamentos } from "../api/api";
 import { API_ENDPOINTS } from "../config/api";
 import { useHotJar } from "@/hooks/useHotJar";
+import { cache } from "../utils/cache";
 
 interface BiometriaModalProps {
   isOpen: boolean;
@@ -87,6 +88,11 @@ export default function BiometriaModal({ isOpen, onClose, onSuccess, tanqueId }:
         Transparencia: formData.Transparencia ? parseFloat(formData.Transparencia) : undefined,
         Quantidade_Alimentacoes: formData.Quantidade_Alimentacoes ? parseInt(formData.Quantidade_Alimentacoes) : undefined,
       });
+
+      // Limpar cache relacionado a biometrias e tanques
+      cache.invalidateOnInsert('biometria');
+      cache.invalidateOnInsert('tanque');
+      console.log('🗑️ Cache de biometrias e tanques limpo após inserção');
 
       // Rastrear criação de biometria diária
       trackEvent('Daily Biometry Created', {
