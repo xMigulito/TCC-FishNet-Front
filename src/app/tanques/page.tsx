@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { fetchResumoTanques, desalojarTanque } from "@/api/api";
+import { fetchResumoTanques, desalojarTanque, desativarTanque, ativarTanque, fetchTanquesIncludingInactive } from "@/api/api";
 import NovoTanqueModal from "@/components/NovoTanqueModal";
 import BiometriaModal from "@/components/BiometriaModal";
 import BiometriaSemanalModal from "@/components/BiometriaSemanalModal";
 import AlojamentoModal from "@/components/AlojamentoModal";
+import ConfirmModal from "@/components/ConfirmModal";
 import { useHotJar } from "@/hooks/useHotJar";
 
 interface TanqueResumo {
@@ -23,6 +24,7 @@ interface TanqueResumo {
   fca?: number | null;
   alojado?: boolean;
   alojamentoId?: number | null;
+  ativo?: boolean;
 }
 
 function getStatus(valor: number | null | undefined, tipo: string) {
@@ -72,16 +74,22 @@ export default function Tanques() {
   const [showBiometriaSemanalModal, setShowBiometriaSemanalModal] = useState(false);
   const [showAlojamentoModal, setShowAlojamentoModal] = useState(false);
   const [selectedTanqueId, setSelectedTanqueId] = useState<number | null>(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<(() => void) | null>(null);
+  const [confirmTitle, setConfirmTitle] = useState("");
+  const [confirmMessage, setConfirmMessage] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [showInactive, setShowInactive] = useState(false);
 
   useEffect(() => {
     loadTanques();
     trackPageView('Tanques');
-  }, [trackPageView]);
+  }, [trackPageView, showInactive]);
 
   async function loadTanques() {
     try {
       console.log('🔄 Carregando tanques...');
-      const data = await fetchResumoTanques();
+      const data = showInactive ? await fetchTanquesIncludingInactive() : await fetchResumoTanques();
       console.log('📊 Dados recebidos da API:', data);
       console.log('📊 Tipo dos dados:', typeof data);
       console.log('📊 É array?', Array.isArray(data));
@@ -119,6 +127,76 @@ export default function Tanques() {
     }
   }
 
+  async function handleDesativarTanque(tanqueId: number, tanqueLocal: string) {
+    setIsProcessing(true);
+    try {
+      await desativarTanque(tanqueId);
+      await loadTanques(); // Recarregar dados
+      
+      // Rastrear desativação
+      trackEvent('Tank Deactivated', {
+        tanqueId: tanqueId,
+        tanqueLocal: tanqueLocal,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Erro ao desativar tanque:', error);
+      setErro("Erro ao desativar tanque");
+      
+      // Rastrear erro na desativação
+      trackEvent('Tank Deactivation Error', {
+        tanqueId: tanqueId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
+    } finally {
+      setIsProcessing(false);
+      setShowConfirmModal(false);
+    }
+  }
+
+  async function handleAtivarTanque(tanqueId: number, tanqueLocal: string) {
+    setIsProcessing(true);
+    try {
+      await ativarTanque(tanqueId);
+      await loadTanques(); // Recarregar dados
+      
+      // Rastrear ativação
+      trackEvent('Tank Activated', {
+        tanqueId: tanqueId,
+        tanqueLocal: tanqueLocal,
+        timestamp: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Erro ao ativar tanque:', error);
+      setErro("Erro ao ativar tanque");
+      
+      // Rastrear erro na ativação
+      trackEvent('Tank Activation Error', {
+        tanqueId: tanqueId,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      });
+    } finally {
+      setIsProcessing(false);
+      setShowConfirmModal(false);
+    }
+  }
+
+  function confirmDesativarTanque(tanqueId: number, tanqueLocal: string) {
+    setConfirmTitle("Desativar Tanque");
+    setConfirmMessage(`Tem certeza que deseja desativar o tanque "${tanqueLocal || `Tanque ${tanqueId}`}"? O tanque não aparecerá mais na lista principal, mas poderá ser reativado posteriormente.`);
+    setConfirmAction(() => () => handleDesativarTanque(tanqueId, tanqueLocal));
+    setShowConfirmModal(true);
+  }
+
+  function confirmAtivarTanque(tanqueId: number, tanqueLocal: string) {
+    setConfirmTitle("Ativar Tanque");
+    setConfirmMessage(`Tem certeza que deseja ativar o tanque "${tanqueLocal || `Tanque ${tanqueId}`}"? O tanque voltará a aparecer na lista principal.`);
+    setConfirmAction(() => () => handleAtivarTanque(tanqueId, tanqueLocal));
+    setShowConfirmModal(true);
+  }
+
   if (isLoading) {
     return <div className="p-8">Carregando tanques...</div>;
   }
@@ -135,18 +213,31 @@ export default function Tanques() {
             <h1 className="text-5xl font-extrabold text-primary">Tanques</h1>
             <p className="text-lg text-primary mt-1">Visão geral da piscicultura e métricas importantes</p>
           </div>
-          <button 
-            onClick={() => {
-              trackEvent('New Tank Button Clicked', {
-                page: 'tanques',
-                timestamp: new Date().toISOString()
-              });
-              setShowNovoTanqueModal(true);
-            }}
-            className="bg-secondary text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-secondary/80 transition-colors"
-          >
-            + Novo Tanque
-          </button>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={showInactive}
+                onChange={(e) => {
+                  setShowInactive(e.target.checked);
+                }}
+                className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded focus:ring-primary focus:ring-2"
+              />
+              <span className="text-sm text-gray-600">Mostrar tanques inativos</span>
+            </label>
+            <button 
+              onClick={() => {
+                trackEvent('New Tank Button Clicked', {
+                  page: 'tanques',
+                  timestamp: new Date().toISOString()
+                });
+                setShowNovoTanqueModal(true);
+              }}
+              className="bg-secondary text-white px-5 py-2 rounded-lg font-semibold shadow hover:bg-secondary/80 transition-colors"
+            >
+              + Novo Tanque
+            </button>
+          </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {tanques.map((tanque) => {
@@ -164,20 +255,50 @@ export default function Tanques() {
             const statusPeso = getStatus(pesoMedio, 'peso');
 
             return (
-              <div key={tanque.id} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-md flex flex-col gap-2 min-w-[280px] relative">
+              <div key={tanque.id} className={`bg-white border rounded-2xl p-5 shadow-md flex flex-col gap-2 min-w-[280px] relative ${tanque.ativo === false ? 'border-gray-300 bg-gray-50 opacity-75' : 'border-gray-200'}`}>
                 <div className="flex justify-between items-start mb-2">
-                  <div className="font-bold text-lg text-primary">{tanque.local || `Tanque ${tanque.id}`}</div>
-                  {tanque.alojado && (
-                    <button
-                      onClick={() => tanque.alojamentoId && handleDesalojar(tanque.alojamentoId)}
-                      className="bg-red-100 hover:bg-red-200 text-red-600 hover:text-red-800 transition-colors p-2 rounded-full border border-red-300"
-                      title="Desalojar"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <div className="font-bold text-lg text-primary">{tanque.local || `Tanque ${tanque.id}`}</div>
+                    {tanque.ativo === false && (
+                      <span className="px-2 py-1 bg-gray-200 text-gray-600 text-xs rounded-full font-medium">
+                        Inativo
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex gap-1">
+                    {tanque.alojado && (
+                      <button
+                        onClick={() => tanque.alojamentoId && handleDesalojar(tanque.alojamentoId)}
+                        className="bg-red-100 hover:bg-red-200 text-red-600 hover:text-red-800 transition-colors p-2 rounded-full border border-red-300"
+                        title="Desalojar"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    )}
+                    {tanque.ativo !== false ? (
+                      <button
+                        onClick={() => confirmDesativarTanque(tanque.id, tanque.local || `Tanque ${tanque.id}`)}
+                        className="bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800 transition-colors p-2 rounded-full border border-gray-300"
+                        title="Desativar tanque"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => confirmAtivarTanque(tanque.id, tanque.local || `Tanque ${tanque.id}`)}
+                        className="bg-green-100 hover:bg-green-200 text-green-600 hover:text-green-800 transition-colors p-2 rounded-full border border-green-300"
+                        title="Ativar tanque"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className="w-full h-5 bg-gray-200 rounded-full mb-3 relative overflow-hidden border border-gray-300">
                   <div
@@ -306,6 +427,18 @@ export default function Tanques() {
         onClose={() => setShowBiometriaSemanalModal(false)}
         onSuccess={loadTanques}
         tanqueId={selectedTanqueId || 0}
+      />
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => setShowConfirmModal(false)}
+        onConfirm={() => confirmAction && confirmAction()}
+        title={confirmTitle}
+        message={confirmMessage}
+        confirmText="Confirmar"
+        cancelText="Cancelar"
+        type="danger"
+        isLoading={isProcessing}
       />
     </div>
   );

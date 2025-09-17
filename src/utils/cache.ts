@@ -167,6 +167,7 @@ export const createCacheConfig = (key: string, ttl?: number): CacheConfig => ({
 export const CACHE_KEYS = {
   TANQUES: 'tanques',
   TANQUES_RESUMO: 'tanques_resumo',
+  TANQUES_INACTIVE: 'tanques_inactive',
   ALOJAMENTOS: 'alojamentos',
   BIOMETRIAS_DIARIAS: 'biometrias_diarias',
   BIOMETRIAS_SEMANAIS: 'biometrias_semanais',

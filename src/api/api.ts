@@ -279,6 +279,58 @@ export async function desalojarTanque(alojamentoId: number) {
     }
 }
 
+export async function desativarTanque(tanqueId: number) {
+    try {
+        const response = await axios.patch(`${TANQUES_API_URL}/${tanqueId}/desativar`);
+        
+        // Invalidar cache relacionado a tanques
+        cache.invalidateOnInsert('tanque');
+        
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao desativar tanque:', error);
+        throw error;
+    }
+}
+
+export async function ativarTanque(tanqueId: number) {
+    try {
+        const response = await axios.patch(`${TANQUES_API_URL}/${tanqueId}/ativar`);
+        
+        // Invalidar cache relacionado a tanques
+        cache.invalidateOnInsert('tanque');
+        
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao ativar tanque:', error);
+        throw error;
+    }
+}
+
+export async function fetchTanquesIncludingInactive(forceRefresh: boolean = false) {
+    try {
+        // Verificar cache primeiro (se não for refresh forçado)
+        if (!forceRefresh) {
+            const cachedData = cache.get(createCacheConfig(CACHE_KEYS.TANQUES_INACTIVE));
+            if (cachedData) {
+                console.log('📦 Dados dos tanques (incluindo inativos) carregados do cache');
+                return cachedData;
+            }
+        }
+
+        console.log('🌐 Buscando tanques (incluindo inativos) da API...');
+        const response = await axios.get(`${TANQUES_API_URL}/todos`);
+        
+        // Salvar no cache
+        cache.set(createCacheConfig(CACHE_KEYS.TANQUES_INACTIVE), response.data);
+        
+        return response.data;
+    } catch (error) {
+        console.error('Erro ao buscar tanques (incluindo inativos):', error);
+        throw error;
+    }
+}
+
 // Função para forçar refresh de todos os dados
 export async function refreshAllData() {
     console.log('🔄 Forçando refresh de todos os dados...');
